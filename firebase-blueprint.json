@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Team member profile and role",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "name": { "type": "string", "description": "Full name of the user", "maxLength": 100 },
+        "email": { "type": "string", "description": "Email address of the user", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["member", "admin"], "description": "User role" },
+        "area": { "type": "string", "enum": ["Marketing", "RRHH", "Sistemas", "Administrador"], "description": "Department area" },
+        "title": { "type": "string", "description": "Job title or position", "maxLength": 100 },
+        "avatar": { "type": "string", "description": "Avatar URL or initial", "maxLength": 500 }
+      },
+      "required": ["id", "name", "email", "role", "area"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Project tracked by team members",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique project identifier" },
+        "name": { "type": "string", "description": "Project title", "maxLength": 150 },
+        "area": { "type": "string", "enum": ["Marketing", "RRHH", "Sistemas", "Administrador"], "description": "Department area responsible" },
+        "color": { "type": "string", "description": "Hex color code", "maxLength": 30 },
+        "budgetHours": { "type": "number", "description": "Estimated budget hours" },
+        "status": { "type": "string", "enum": ["active", "archived"], "description": "Project active status" },
+        "description": { "type": "string", "description": "Project description", "maxLength": 1000 }
+      },
+      "required": ["id", "name", "area", "color", "budgetHours", "status"]
+    },
+    "TimeEntry": {
+      "title": "TimeEntry",
+      "description": "Single recorded time entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique entry identifier" },
+        "userId": { "type": "string", "description": "User identifier who performed the work" },
+        "userName": { "type": "string", "description": "Display name of user", "maxLength": 100 },
+        "userArea": { "type": "string", "enum": ["Marketing", "RRHH", "Sistemas", "Administrador"], "description": "Department area" },
+        "projectId": { "type": "string", "description": "Associated project identifier" },
+        "projectName": { "type": "string", "description": "Display name of project", "maxLength": 150 },
+        "description": { "type": "string", "description": "Work description", "maxLength": 1000 },
+        "date": { "type": "string", "description": "Date of entry (YYYY-MM-DD)", "maxLength": 20 },
+        "startTime": { "type": "string", "description": "Start time HH:mm", "maxLength": 10 },
+        "endTime": { "type": "string", "description": "End time HH:mm", "maxLength": 10 },
+        "durationMinutes": { "type": "number", "description": "Total duration in minutes" },
+        "timesheetId": { "type": "string", "description": "Associated timesheet ID if submitted" },
+        "createdAt": { "type": "string", "description": "Timestamp ISO string of creation" }
+      },
+      "required": ["id", "userId", "userName", "userArea", "projectId", "projectName", "description", "date", "durationMinutes"]
+    },
+    "Timesheet": {
+      "title": "Timesheet",
+      "description": "Weekly timesheet submission",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique timesheet identifier" },
+        "userId": { "type": "string", "description": "User identifier who owns the timesheet" },
+        "userName": { "type": "string", "description": "Display name of user", "maxLength": 100 },
+        "userArea": { "type": "string", "enum": ["Marketing", "RRHH", "Sistemas", "Administrador"], "description": "Department area" },
+        "weekStartDate": { "type": "string", "description": "Start date of the week (YYYY-MM-DD)", "maxLength": 20 },
+        "weekEndDate": { "type": "string", "description": "End date of the week (YYYY-MM-DD)", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["draft", "submitted", "approved", "rejected"], "description": "Approval status" },
+        "submittedAt": { "type": "string", "description": "ISO timestamp of submission" },
+        "approvedAt": { "type": "string", "description": "ISO timestamp of approval" },
+        "reviewedBy": { "type": "string", "description": "Reviewer name or identifier", "maxLength": 100 },
+        "feedbackNote": { "type": "string", "description": "Reviewer feedback note", "maxLength": 1000 },
+        "totalMinutes": { "type": "number", "description": "Total duration in minutes for the week" }
+      },
+      "required": ["id", "userId", "userName", "userArea", "weekStartDate", "weekEndDate", "status", "totalMinutes"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Team member profiles"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Team projects with budget and tracking details"
+    },
+    "/timeEntries/{entryId}": {
+      "schema": "TimeEntry",
+      "description": "Time entries logged across all team members"
+    },
+    "/timesheets/{timesheetId}": {
+      "schema": "Timesheet",
+      "description": "Weekly timesheets submitted and approved"
+    }
+  }
+}

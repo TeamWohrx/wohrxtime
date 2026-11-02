@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import {
   ActiveTimer,
   DepartmentArea,
@@ -18,12 +19,26 @@ import {
   INITIAL_PROJECTS,
   INITIAL_USERS,
 } from './data/mockData';
+import { auth, googleProvider, signInWithPopup, signOut } from './firebase';
+import {
+  subscribeToUsers,
+  subscribeToProjects,
+  subscribeToTimeEntries,
+  subscribeToTimesheets,
+  saveTimeEntry,
+  deleteTimeEntry,
+  saveProject,
+  deleteProject,
+  saveTimesheet,
+  seedInitialDataIfEmpty,
+} from './services/firestoreService';
 import { Navbar } from './components/Navigation/Navbar';
 import { TimeTrackerView } from './components/TimeTracker/TimeTrackerView';
 import { TimesheetView } from './components/Timesheets/TimesheetView';
 import { ReportsView } from './components/Reports/ReportsView';
 import { ProjectsView } from './components/Projects/ProjectsView';
 import { decimalHoursToMinutes, toISODateString } from './utils/timeUtils';
+import { Cloud, LogIn, Sparkles, Users } from 'lucide-react';
 
 const STORAGE_KEYS = {
   USERS: 'cronosflow_users_v4',
@@ -69,6 +84,11 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Auth User from Firebase
+  const [authUser, setAuthUser] = useState<FirebaseUser | null>(null);
+  const [isSyncActive, setIsSyncActive] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Users
   const [users, setUsers] = useState<User[]>(() => {
@@ -137,7 +157,60 @@ export default function App() {
     };
   });
 
-  // Helper to ensure a project exists in state
+  // Track Firebase Auth state & attach real-time Firestore listeners
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      setAuthUser(user);
+      if (user) {
+        setIsSyncActive(true);
+        // Seed initial data if database is fresh
+        await seedInitialDataIfEmpty();
+
+        // Listen for real-time changes across all clients
+        const unsubUsers = subscribeToUsers((serverUsers) => {
+          if (serverUsers.length > 0) {
+            setUsers(serverUsers);
+            // If logged-in user matches email or name, auto-select profile
+            const matched = serverUsers.find(
+              (u) =>
+                u.email.toLowerCase() === (user.email || '').toLowerCase() ||
+                (user.displayName && u.name.toLowerCase() === user.displayName.toLowerCase())
+            );
+            if (matched) {
+              setCurrentUser(matched);
+            }
+          }
+        });
+
+        const unsubProjects = subscribeToProjects((serverProjects) => {
+          if (serverProjects.length > 0) {
+            setProjects(serverProjects);
+          }
+        });
+
+        const unsubEntries = subscribeToTimeEntries((serverEntries) => {
+          setEntries(serverEntries);
+        });
+
+        const unsubTimesheets = subscribeToTimesheets((serverTimesheets) => {
+          setTimesheets(serverTimesheets);
+        });
+
+        return () => {
+          unsubUsers();
+          unsubProjects();
+          unsubEntries();
+          unsubTimesheets();
+        };
+      } else {
+        setIsSyncActive(false);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  // Helper to ensure a project exists in state and Firestore
   const ensureProjectExists = (projectName: string, area: DepartmentArea): Project => {
     const trimmed = projectName.trim();
     const existing = projects.find(
@@ -156,10 +229,13 @@ export default function App() {
     };
 
     setProjects((prev) => [...prev, newProject]);
+    if (authUser) {
+      saveProject(newProject).catch((err) => console.error('Error saving project to cloud:', err));
+    }
     return newProject;
   };
 
-  // Save changes to localStorage
+  // Local Storage persistence backup
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
@@ -188,6 +264,25 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [timer.isRunning, timer.isPaused]);
+
+  // Auth Handlers
+  const handleLogin = async () => {
+    setAuthError(null);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setAuthError('No se pudo completar el inicio de sesión con Google.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Timer Handlers
   const handleStartTimer = (projectName: string, description: string) => {
@@ -245,6 +340,9 @@ export default function App() {
     };
 
     setEntries((prev) => [newEntry, ...prev]);
+    if (authUser) {
+      saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
+    }
 
     setTimer({
       isRunning: false,
@@ -278,14 +376,23 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
     setEntries((prev) => [newEntry, ...prev]);
+    if (authUser) {
+      saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
+    }
   };
 
   const handleDeleteEntry = (id: string) => {
     setEntries((prev) => prev.filter((e) => e.id !== id));
+    if (authUser) {
+      deleteTimeEntry(id).catch((err) => console.error('Cloud delete entry error:', err));
+    }
   };
 
   const handleUpdateEntry = (updated: TimeEntry) => {
     setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+    if (authUser) {
+      saveTimeEntry(updated).catch((err) => console.error('Cloud update entry error:', err));
+    }
   };
 
   // Timesheet cell modification (matrix editing by projectName)
@@ -308,20 +415,28 @@ export default function App() {
 
     if (hours <= 0) {
       if (existingIndex !== -1) {
+        const toDelete = entries[existingIndex];
         setEntries((prev) => prev.filter((_, idx) => idx !== existingIndex));
+        if (authUser) {
+          deleteTimeEntry(toDelete.id).catch((err) => console.error('Cloud delete error:', err));
+        }
       }
       return;
     }
 
     if (existingIndex !== -1) {
+      const updatedEntry: TimeEntry = {
+        ...entries[existingIndex],
+        durationMinutes: newMinutes,
+      };
       setEntries((prev) => {
         const copy = [...prev];
-        copy[existingIndex] = {
-          ...copy[existingIndex],
-          durationMinutes: newMinutes,
-        };
+        copy[existingIndex] = updatedEntry;
         return copy;
       });
+      if (authUser) {
+        saveTimeEntry(updatedEntry).catch((err) => console.error('Cloud update error:', err));
+      }
     } else {
       const newEntry: TimeEntry = {
         id: `entry-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -336,26 +451,32 @@ export default function App() {
         createdAt: new Date().toISOString(),
       };
       setEntries((prev) => [newEntry, ...prev]);
+      if (authUser) {
+        saveTimeEntry(newEntry).catch((err) => console.error('Cloud save error:', err));
+      }
     }
   };
 
   // Timesheet Approval Workflow Handlers
   const handleSubmitTimesheet = (timesheetId: string) => {
-    setTimesheets((prev) => {
-      const existing = prev.find((t) => t.id === timesheetId);
-      if (existing) {
-        return prev.map((t) =>
-          t.id === timesheetId
-            ? { ...t, status: 'submitted', submittedAt: new Date().toISOString(), feedbackNote: undefined }
-            : t
-        );
-      }
+    const existing = timesheets.find((t) => t.id === timesheetId);
+    let targetTs: Timesheet;
+
+    if (existing) {
+      targetTs = {
+        ...existing,
+        status: 'submitted',
+        submittedAt: new Date().toISOString(),
+        feedbackNote: undefined,
+      };
+      setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? targetTs : t)));
+    } else {
       const parts = timesheetId.split('-');
       const userId = parts[1];
       const mondayStr = parts.slice(2).join('-');
       const user = users.find((u) => u.id === userId) || currentUser;
 
-      const newTs: Timesheet = {
+      targetTs = {
         id: timesheetId,
         userId,
         userName: user.name,
@@ -366,53 +487,58 @@ export default function App() {
         submittedAt: new Date().toISOString(),
         totalMinutes: 0,
       };
-      return [...prev, newTs];
-    });
+      setTimesheets((prev) => [...prev, targetTs]);
+    }
+
+    if (authUser) {
+      saveTimesheet(targetTs).catch((err) => console.error('Cloud submit timesheet error:', err));
+    }
   };
 
   const handleApproveTimesheet = (timesheetId: string, reviewerName: string) => {
-    setTimesheets((prev) => {
-      const existing = prev.find((t) => t.id === timesheetId);
-      if (existing) {
-        return prev.map((t) =>
-          t.id === timesheetId
-            ? {
-                ...t,
-                status: 'approved',
-                approvedAt: new Date().toISOString(),
-                reviewedBy: reviewerName,
-                feedbackNote: 'Planilla revisada y aprobada por la administración.',
-              }
-            : t
-        );
-      }
-      return prev;
-    });
+    const existing = timesheets.find((t) => t.id === timesheetId);
+    if (!existing) return;
+
+    const updatedTs: Timesheet = {
+      ...existing,
+      status: 'approved',
+      approvedAt: new Date().toISOString(),
+      reviewedBy: reviewerName,
+      feedbackNote: 'Planilla revisada y aprobada por la administración.',
+    };
+
+    setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
+    if (authUser) {
+      saveTimesheet(updatedTs).catch((err) => console.error('Cloud approve timesheet error:', err));
+    }
   };
 
   const handleRejectTimesheet = (timesheetId: string, feedbackNote: string) => {
-    setTimesheets((prev) => {
-      const existing = prev.find((t) => t.id === timesheetId);
-      if (existing) {
-        return prev.map((t) =>
-          t.id === timesheetId
-            ? {
-                ...t,
-                status: 'rejected',
-                reviewedBy: currentUser.name,
-                feedbackNote: feedbackNote,
-              }
-            : t
-        );
-      }
-      return prev;
-    });
+    const existing = timesheets.find((t) => t.id === timesheetId);
+    if (!existing) return;
+
+    const updatedTs: Timesheet = {
+      ...existing,
+      status: 'rejected',
+      reviewedBy: currentUser.name,
+      feedbackNote: feedbackNote,
+    };
+
+    setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
+    if (authUser) {
+      saveTimesheet(updatedTs).catch((err) => console.error('Cloud reject timesheet error:', err));
+    }
   };
 
   const handleRevertToDraft = (timesheetId: string) => {
-    setTimesheets((prev) =>
-      prev.map((t) => (t.id === timesheetId ? { ...t, status: 'draft' } : t))
-    );
+    const existing = timesheets.find((t) => t.id === timesheetId);
+    if (!existing) return;
+
+    const updatedTs: Timesheet = { ...existing, status: 'draft' };
+    setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
+    if (authUser) {
+      saveTimesheet(updatedTs).catch((err) => console.error('Cloud revert timesheet error:', err));
+    }
   };
 
   // Project CRUD
@@ -422,17 +548,26 @@ export default function App() {
       id: `proj-${Date.now()}`,
     };
     setProjects((prev) => [...prev, newProject]);
+    if (authUser) {
+      saveProject(newProject).catch((err) => console.error('Cloud save project error:', err));
+    }
   };
 
   const handleUpdateProject = (updated: Project) => {
     setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    if (authUser) {
+      saveProject(updated).catch((err) => console.error('Cloud update project error:', err));
+    }
   };
 
   const handleDeleteProject = (id: string) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
+    if (authUser) {
+      deleteProject(id).catch((err) => console.error('Cloud delete project error:', err));
+    }
   };
 
-  const handleResetSeedData = () => {
+  const handleResetSeedData = async () => {
     setUsers(INITIAL_USERS);
     setCurrentUser(INITIAL_USERS.find((u) => u.name.includes('Nahir')) || INITIAL_USERS[0]);
     setProjects(INITIAL_PROJECTS);
@@ -440,6 +575,9 @@ export default function App() {
     setTimesheets(generateSeedTimesheets());
     handleDiscardTimer();
     localStorage.clear();
+    if (authUser) {
+      await seedInitialDataIfEmpty();
+    }
   };
 
   return (
@@ -454,7 +592,34 @@ export default function App() {
         onSelectUser={setCurrentUser}
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        authUser={authUser}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        isSyncActive={isSyncActive}
       />
+
+      {/* Cloud Sync Announcement / Onboarding Banner when not logged in */}
+      {!authUser && (
+        <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white px-4 py-3 shadow-sm no-print">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-lg bg-white/10 shrink-0">
+                <Cloud className="w-4 h-4 text-white" />
+              </div>
+              <p>
+                <span className="font-bold">Base de datos en la nube lista:</span> Para que tus horas y proyectos se sincronicen en vivo con los ordenadores de tus compañeros, conecta tu cuenta.
+              </p>
+            </div>
+            <button
+              onClick={handleLogin}
+              className="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 font-semibold hover:bg-indigo-50 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Conectar con Google</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Viewport */}
       <main className="flex-1 pb-16">

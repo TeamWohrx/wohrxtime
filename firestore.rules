@@ -1,0 +1,117 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        request.auth.token.email == 'NahMendozaCrespo@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'role', 'area']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+        data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
+        data.role in ['member', 'admin'] &&
+        data.area in ['Marketing', 'RRHH', 'Sistemas', 'Administrador'];
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['id', 'name', 'area', 'color', 'budgetHours', 'status']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 150 &&
+        data.area in ['Marketing', 'RRHH', 'Sistemas', 'Administrador'] &&
+        data.color is string && data.color.size() <= 30 &&
+        data.budgetHours is number && data.budgetHours >= 0 &&
+        data.status in ['active', 'archived'];
+    }
+
+    function isValidTimeEntry(data) {
+      return data.keys().hasAll(['id', 'userId', 'userName', 'userArea', 'projectId', 'projectName', 'description', 'date', 'durationMinutes']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.userName is string && data.userName.size() > 0 && data.userName.size() <= 100 &&
+        data.userArea in ['Marketing', 'RRHH', 'Sistemas', 'Administrador'] &&
+        data.projectId is string && data.projectId.size() <= 128 &&
+        data.projectName is string && data.projectName.size() <= 150 &&
+        data.description is string && data.description.size() <= 1000 &&
+        data.date is string && data.date.size() <= 20 &&
+        data.durationMinutes is number && data.durationMinutes >= 0;
+    }
+
+    function isValidTimesheet(data) {
+      return data.keys().hasAll(['id', 'userId', 'userName', 'userArea', 'weekStartDate', 'weekEndDate', 'status', 'totalMinutes']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.userName is string && data.userName.size() > 0 && data.userName.size() <= 100 &&
+        data.userArea in ['Marketing', 'RRHH', 'Sistemas', 'Administrador'] &&
+        data.weekStartDate is string && data.weekStartDate.size() <= 20 &&
+        data.weekEndDate is string && data.weekEndDate.size() <= 20 &&
+        data.status in ['draft', 'submitted', 'approved', 'rejected'] &&
+        data.totalMinutes is number && data.totalMinutes >= 0;
+    }
+
+    // Admins registry
+    match /admins/{adminId} {
+      allow read: if isVerified();
+      allow write: if false;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isVerified();
+      allow create, update: if isVerified() && isValidUser(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Projects collection
+    match /projects/{projectId} {
+      allow read: if isVerified();
+      allow create, update: if isVerified() && isValidProject(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Time entries collection
+    match /timeEntries/{entryId} {
+      allow read: if isVerified();
+      allow create: if isVerified() && isValidTimeEntry(incoming());
+      allow update: if isVerified() && isValidTimeEntry(incoming());
+      allow delete: if isVerified();
+    }
+
+    // Timesheets collection
+    match /timesheets/{timesheetId} {
+      allow read: if isVerified();
+      allow create: if isVerified() && isValidTimesheet(incoming());
+      allow update: if isVerified() && isValidTimesheet(incoming());
+      allow delete: if isVerified();
+    }
+  }
+}

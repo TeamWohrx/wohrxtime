@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActiveTimer, DepartmentArea, User } from '../../types';
 import { formatSecondsToDigital } from '../../utils/timeUtils';
-import { Clock, Moon, Sun, ChevronDown, Check, Shield } from 'lucide-react';
+import { Clock, Moon, Sun, ChevronDown, Check, Shield, Cloud, CloudOff, LogIn, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: 'tracker' | 'timesheets' | 'reports' | 'projects';
@@ -12,6 +12,10 @@ interface NavbarProps {
   onSelectUser: (user: User) => void;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
+  authUser: { email?: string | null; displayName?: string | null } | null;
+  onLogin: () => void;
+  onLogout: () => void;
+  isSyncActive: boolean;
 }
 
 const AREA_BADGES: Record<DepartmentArea, { bg: string; text: string }> = {
@@ -30,6 +34,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectUser,
   isDarkMode,
   onToggleDarkMode,
+  authUser,
+  onLogin,
+  onLogout,
+  isSyncActive,
 }) => {
   const [showUserMenu, setShowUserMenu] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -120,6 +128,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>{formatSecondsToDigital(timer.elapsedSeconds)}</span>
+            </button>
+          )}
+
+          {/* Cloud Sync & Auth Button */}
+          {authUser ? (
+            <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 px-2.5 py-1.5 rounded-lg text-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="hidden lg:inline font-medium text-emerald-700 dark:text-emerald-300">
+                Sincronizado
+              </span>
+              <button
+                onClick={onLogout}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 cursor-pointer p-0.5 rounded"
+                title={`Cerrar sesión (${authUser.email || ''})`}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onLogin}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer"
+              title="Iniciar sesión para sincronizar entre todos los ordenadores"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Conectar Equipo</span>
             </button>
           )}
 
