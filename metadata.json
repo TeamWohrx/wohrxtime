@@ -1,0 +1,6 @@
+{
+  "name": "CronosFlow - Control de Tiempo y Planillas",
+  "description": "Plataforma de control horario, planillas de timesheet semanales con flujo de aprobación e informes exportables para freelancers y equipos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
