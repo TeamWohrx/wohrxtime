@@ -211,7 +211,8 @@ export async function saveUser(user: User): Promise<void> {
 }
 
 /**
- * Seed initial database records if collections are empty in Firestore
+ * Seed initial structure (users & default area projects) if empty in Firestore.
+ * NOTE: Real-world timeEntries and timesheets are NEVER seeded automatically with fake data.
  */
 export async function seedInitialDataIfEmpty(): Promise<void> {
   try {
@@ -219,7 +220,7 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
     const existingUsers = await getDocs(usersCol);
 
     if (existingUsers.empty) {
-      console.log('Seeding initial users into Firestore...');
+      console.log('Seeding initial team users into Firestore...');
       for (const u of INITIAL_USERS) {
         await setDoc(doc(db, COLLECTIONS.USERS, u.id), cleanForFirestore(u));
       }
@@ -229,34 +230,105 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
     const existingProjects = await getDocs(projectsCol);
 
     if (existingProjects.empty) {
-      console.log('Seeding initial projects into Firestore...');
+      console.log('Seeding initial area projects into Firestore...');
       for (const p of INITIAL_PROJECTS) {
         await setDoc(doc(db, COLLECTIONS.PROJECTS, p.id), cleanForFirestore(p));
-      }
-    }
-
-    const entriesCol = collection(db, COLLECTIONS.TIME_ENTRIES);
-    const existingEntries = await getDocs(entriesCol);
-
-    if (existingEntries.empty) {
-      console.log('Seeding initial time entries into Firestore...');
-      const seedEntries = generateSeedTimeEntries();
-      for (const e of seedEntries) {
-        await setDoc(doc(db, COLLECTIONS.TIME_ENTRIES, e.id), cleanForFirestore(e));
-      }
-    }
-
-    const timesheetsCol = collection(db, COLLECTIONS.TIMESHEETS);
-    const existingTimesheets = await getDocs(timesheetsCol);
-
-    if (existingTimesheets.empty) {
-      console.log('Seeding initial timesheets into Firestore...');
-      const seedTimesheets = generateSeedTimesheets();
-      for (const t of seedTimesheets) {
-        await setDoc(doc(db, COLLECTIONS.TIMESHEETS, t.id), cleanForFirestore(t));
       }
     }
   } catch (error) {
     console.warn('Initial seeding note (cloud data already exists or concurrent init):', error);
   }
 }
+
+/**
+ * Checks whether an ID belongs to the initial demo/fictitious seed data
+ */
+export function isDemoEntryId(id: string): boolean {
+  if (!id) return false;
+  return (
+    id.startsWith('entry-nahir-') ||
+    id.startsWith('entry-eduardo-') ||
+    id.startsWith('entry-alvaro-') ||
+    id.startsWith('entry-martin-') ||
+    id.startsWith('entry-zoe-') ||
+    id.startsWith('entry-malena-') ||
+    id.startsWith('entry-mario-') ||
+    id.startsWith('entry-aylen-') ||
+    id.startsWith('entry-camila-') ||
+    id.startsWith('entry-valentin-') ||
+    id.startsWith('seed-')
+  );
+}
+
+export function isDemoTimesheetId(id: string): boolean {
+  if (!id) return false;
+  return (
+    id.startsWith('ts-user-nahir-') ||
+    id.startsWith('ts-user-alvaro-') ||
+    id.startsWith('ts-user-zoe-') ||
+    id.startsWith('seed-')
+  );
+}
+
+/**
+ * Permanently purges all fictitious demo entries and timesheets from Firestore
+ */
+export async function purgeAllDemoEntriesAndTimesheets(): Promise<{
+  deletedEntries: number;
+  deletedTimesheets: number;
+}> {
+  let deletedEntries = 0;
+  let deletedTimesheets = 0;
+
+  try {
+    const entriesCol = collection(db, COLLECTIONS.TIME_ENTRIES);
+    const entriesSnap = await getDocs(entriesCol);
+
+    for (const d of entriesSnap.docs) {
+      if (isDemoEntryId(d.id)) {
+        await deleteDoc(doc(db, COLLECTIONS.TIME_ENTRIES, d.id));
+        deletedEntries++;
+      }
+    }
+
+    const timesheetsCol = collection(db, COLLECTIONS.TIMESHEETS);
+    const timesheetsSnap = await getDocs(timesheetsCol);
+
+    for (const d of timesheetsSnap.docs) {
+      if (isDemoTimesheetId(d.id)) {
+        await deleteDoc(doc(db, COLLECTIONS.TIMESHEETS, d.id));
+        deletedTimesheets++;
+      }
+    }
+
+    console.log(
+      `Purged demo data from Firestore: ${deletedEntries} entries, ${deletedTimesheets} timesheets`
+    );
+  } catch (error) {
+    console.error('Error purging demo data from cloud:', error);
+  }
+
+  return { deletedEntries, deletedTimesheets };
+}
+
+/**
+ * Clear all time entries and timesheets (for fresh team production start)
+ */
+export async function clearAllTimeRecordsFromFirestore(): Promise<void> {
+  try {
+    const entriesCol = collection(db, COLLECTIONS.TIME_ENTRIES);
+    const entriesSnap = await getDocs(entriesCol);
+    for (const d of entriesSnap.docs) {
+      await deleteDoc(doc(db, COLLECTIONS.TIME_ENTRIES, d.id));
+    }
+
+    const timesheetsCol = collection(db, COLLECTIONS.TIMESHEETS);
+    const timesheetsSnap = await getDocs(timesheetsCol);
+    for (const d of timesheetsSnap.docs) {
+      await deleteDoc(doc(db, COLLECTIONS.TIMESHEETS, d.id));
+    }
+  } catch (error) {
+    console.error('Error clearing time records:', error);
+  }
+}
+

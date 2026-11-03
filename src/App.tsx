@@ -14,8 +14,6 @@ import {
   User,
 } from './types';
 import {
-  generateSeedTimeEntries,
-  generateSeedTimesheets,
   INITIAL_PROJECTS,
   INITIAL_USERS,
 } from './data/mockData';
@@ -31,6 +29,10 @@ import {
   deleteProject,
   saveTimesheet,
   seedInitialDataIfEmpty,
+  isDemoEntryId,
+  isDemoTimesheetId,
+  purgeAllDemoEntriesAndTimesheets,
+  clearAllTimeRecordsFromFirestore,
 } from './services/firestoreService';
 import { Navbar } from './components/Navigation/Navbar';
 import { TimeTrackerView } from './components/TimeTracker/TimeTrackerView';
@@ -121,23 +123,35 @@ export default function App() {
     }
   });
 
-  // Time Entries
+  // Time Entries (Clean start, filtered of demo mock data)
   const [entries, setEntries] = useState<TimeEntry[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ENTRIES);
-      return saved ? JSON.parse(saved) : generateSeedTimeEntries();
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((e) => !isDemoEntryId(e.id));
+        }
+      }
+      return [];
     } catch {
-      return generateSeedTimeEntries();
+      return [];
     }
   });
 
-  // Timesheets
+  // Timesheets (Clean start, filtered of demo mock data)
   const [timesheets, setTimesheets] = useState<Timesheet[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TIMESHEETS);
-      return saved ? JSON.parse(saved) : generateSeedTimesheets();
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((t) => !isDemoTimesheetId(t.id));
+        }
+      }
+      return [];
     } catch {
-      return generateSeedTimesheets();
+      return [];
     }
   });
 
@@ -161,9 +175,14 @@ export default function App() {
   useEffect(() => {
     setIsSyncActive(true);
 
-    // Initial check and seed if cloud database is empty
+    // Initial check and seed basic team users & projects if cloud database is empty
     seedInitialDataIfEmpty().catch((err) => {
       console.warn('Seed initial check:', err);
+    });
+
+    // Automatically purge any lingering demo/fake entries from Firestore
+    purgeAllDemoEntriesAndTimesheets().catch((err) => {
+      console.warn('Demo purge check:', err);
     });
 
     // Listen for real-time changes across all connected computers
@@ -180,11 +199,13 @@ export default function App() {
     });
 
     const unsubEntries = subscribeToTimeEntries((serverEntries) => {
-      setEntries(serverEntries);
+      // Ensure no demo entry leaks into active state
+      setEntries(serverEntries.filter((e) => !isDemoEntryId(e.id)));
     });
 
     const unsubTimesheets = subscribeToTimesheets((serverTimesheets) => {
-      setTimesheets(serverTimesheets);
+      // Ensure no demo timesheet leaks into active state
+      setTimesheets(serverTimesheets.filter((t) => !isDemoTimesheetId(t.id)));
     });
 
     // Also observe Google Auth for optional user identification
@@ -545,11 +566,22 @@ export default function App() {
     setUsers(INITIAL_USERS);
     setCurrentUser(INITIAL_USERS.find((u) => u.name.includes('Nahir')) || INITIAL_USERS[0]);
     setProjects(INITIAL_PROJECTS);
-    setEntries(generateSeedTimeEntries());
-    setTimesheets(generateSeedTimesheets());
+    setEntries([]);
+    setTimesheets([]);
     handleDiscardTimer();
-    localStorage.clear();
+    localStorage.removeItem(STORAGE_KEYS.ENTRIES);
+    localStorage.removeItem(STORAGE_KEYS.TIMESHEETS);
     await seedInitialDataIfEmpty();
+    await purgeAllDemoEntriesAndTimesheets();
+  };
+
+  const handleClearAllRecords = async () => {
+    setEntries([]);
+    setTimesheets([]);
+    handleDiscardTimer();
+    localStorage.removeItem(STORAGE_KEYS.ENTRIES);
+    localStorage.removeItem(STORAGE_KEYS.TIMESHEETS);
+    await clearAllTimeRecordsFromFirestore();
   };
 
   return (

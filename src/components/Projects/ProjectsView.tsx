@@ -145,17 +145,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </button>
           )}
 
-          {/* Reset sample seed button */}
+          {/* Purge demo data button */}
           <button
             onClick={() => {
-              if (confirm('¿Deseas restablecer los proyectos y registros de los 10 colaboradores?')) {
+              if (
+                confirm(
+                  '¿Deseas limpiar todos los registros de prueba (demo) de la base de datos para empezar limpio?'
+                )
+              ) {
                 onResetSeedData();
               }
             }}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            title="Restablecer datos originales"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Limpiar registros de prueba (demo)"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Limpiar datos demo</span>
           </button>
         </div>
       </div>
