@@ -157,57 +157,61 @@ export default function App() {
     };
   });
 
-  // Track Firebase Auth state & attach real-time Firestore listeners
+  // Always attach real-time Firestore listeners immediately on mount
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      setAuthUser(user);
-      if (user) {
-        setIsSyncActive(true);
-        // Seed initial data if database is fresh
-        await seedInitialDataIfEmpty();
+    setIsSyncActive(true);
 
-        // Listen for real-time changes across all clients
-        const unsubUsers = subscribeToUsers((serverUsers) => {
-          if (serverUsers.length > 0) {
-            setUsers(serverUsers);
-            // If logged-in user matches email or name, auto-select profile
-            const matched = serverUsers.find(
-              (u) =>
-                u.email.toLowerCase() === (user.email || '').toLowerCase() ||
-                (user.displayName && u.name.toLowerCase() === user.displayName.toLowerCase())
-            );
-            if (matched) {
-              setCurrentUser(matched);
-            }
-          }
-        });
+    // Initial check and seed if cloud database is empty
+    seedInitialDataIfEmpty().catch((err) => {
+      console.warn('Seed initial check:', err);
+    });
 
-        const unsubProjects = subscribeToProjects((serverProjects) => {
-          if (serverProjects.length > 0) {
-            setProjects(serverProjects);
-          }
-        });
-
-        const unsubEntries = subscribeToTimeEntries((serverEntries) => {
-          setEntries(serverEntries);
-        });
-
-        const unsubTimesheets = subscribeToTimesheets((serverTimesheets) => {
-          setTimesheets(serverTimesheets);
-        });
-
-        return () => {
-          unsubUsers();
-          unsubProjects();
-          unsubEntries();
-          unsubTimesheets();
-        };
-      } else {
-        setIsSyncActive(false);
+    // Listen for real-time changes across all connected computers
+    const unsubUsers = subscribeToUsers((serverUsers) => {
+      if (serverUsers && serverUsers.length > 0) {
+        setUsers(serverUsers);
       }
     });
 
-    return () => unsubscribeAuth();
+    const unsubProjects = subscribeToProjects((serverProjects) => {
+      if (serverProjects && serverProjects.length > 0) {
+        setProjects(serverProjects);
+      }
+    });
+
+    const unsubEntries = subscribeToTimeEntries((serverEntries) => {
+      setEntries(serverEntries);
+    });
+
+    const unsubTimesheets = subscribeToTimesheets((serverTimesheets) => {
+      setTimesheets(serverTimesheets);
+    });
+
+    // Also observe Google Auth for optional user identification
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      setAuthUser(user);
+      if (user) {
+        setUsers((prevUsers) => {
+          const matched = prevUsers.find(
+            (u) =>
+              u.email.toLowerCase() === (user.email || '').toLowerCase() ||
+              (user.displayName && u.name.toLowerCase() === user.displayName.toLowerCase())
+          );
+          if (matched) {
+            setCurrentUser(matched);
+          }
+          return prevUsers;
+        });
+      }
+    });
+
+    return () => {
+      unsubUsers();
+      unsubProjects();
+      unsubEntries();
+      unsubTimesheets();
+      unsubscribeAuth();
+    };
   }, []);
 
   // Helper to ensure a project exists in state and Firestore
@@ -229,9 +233,7 @@ export default function App() {
     };
 
     setProjects((prev) => [...prev, newProject]);
-    if (authUser) {
-      saveProject(newProject).catch((err) => console.error('Error saving project to cloud:', err));
-    }
+    saveProject(newProject).catch((err) => console.error('Error saving project to cloud:', err));
     return newProject;
   };
 
@@ -340,9 +342,7 @@ export default function App() {
     };
 
     setEntries((prev) => [newEntry, ...prev]);
-    if (authUser) {
-      saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
-    }
+    saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
 
     setTimer({
       isRunning: false,
@@ -376,23 +376,17 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
     setEntries((prev) => [newEntry, ...prev]);
-    if (authUser) {
-      saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
-    }
+    saveTimeEntry(newEntry).catch((err) => console.error('Cloud save entry error:', err));
   };
 
   const handleDeleteEntry = (id: string) => {
     setEntries((prev) => prev.filter((e) => e.id !== id));
-    if (authUser) {
-      deleteTimeEntry(id).catch((err) => console.error('Cloud delete entry error:', err));
-    }
+    deleteTimeEntry(id).catch((err) => console.error('Cloud delete entry error:', err));
   };
 
   const handleUpdateEntry = (updated: TimeEntry) => {
     setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
-    if (authUser) {
-      saveTimeEntry(updated).catch((err) => console.error('Cloud update entry error:', err));
-    }
+    saveTimeEntry(updated).catch((err) => console.error('Cloud update entry error:', err));
   };
 
   // Timesheet cell modification (matrix editing by projectName)
@@ -417,9 +411,7 @@ export default function App() {
       if (existingIndex !== -1) {
         const toDelete = entries[existingIndex];
         setEntries((prev) => prev.filter((_, idx) => idx !== existingIndex));
-        if (authUser) {
-          deleteTimeEntry(toDelete.id).catch((err) => console.error('Cloud delete error:', err));
-        }
+        deleteTimeEntry(toDelete.id).catch((err) => console.error('Cloud delete error:', err));
       }
       return;
     }
@@ -434,9 +426,7 @@ export default function App() {
         copy[existingIndex] = updatedEntry;
         return copy;
       });
-      if (authUser) {
-        saveTimeEntry(updatedEntry).catch((err) => console.error('Cloud update error:', err));
-      }
+      saveTimeEntry(updatedEntry).catch((err) => console.error('Cloud update error:', err));
     } else {
       const newEntry: TimeEntry = {
         id: `entry-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -451,9 +441,7 @@ export default function App() {
         createdAt: new Date().toISOString(),
       };
       setEntries((prev) => [newEntry, ...prev]);
-      if (authUser) {
-        saveTimeEntry(newEntry).catch((err) => console.error('Cloud save error:', err));
-      }
+      saveTimeEntry(newEntry).catch((err) => console.error('Cloud save error:', err));
     }
   };
 
@@ -490,9 +478,7 @@ export default function App() {
       setTimesheets((prev) => [...prev, targetTs]);
     }
 
-    if (authUser) {
-      saveTimesheet(targetTs).catch((err) => console.error('Cloud submit timesheet error:', err));
-    }
+    saveTimesheet(targetTs).catch((err) => console.error('Cloud submit timesheet error:', err));
   };
 
   const handleApproveTimesheet = (timesheetId: string, reviewerName: string) => {
@@ -508,9 +494,7 @@ export default function App() {
     };
 
     setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
-    if (authUser) {
-      saveTimesheet(updatedTs).catch((err) => console.error('Cloud approve timesheet error:', err));
-    }
+    saveTimesheet(updatedTs).catch((err) => console.error('Cloud approve timesheet error:', err));
   };
 
   const handleRejectTimesheet = (timesheetId: string, feedbackNote: string) => {
@@ -525,9 +509,7 @@ export default function App() {
     };
 
     setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
-    if (authUser) {
-      saveTimesheet(updatedTs).catch((err) => console.error('Cloud reject timesheet error:', err));
-    }
+    saveTimesheet(updatedTs).catch((err) => console.error('Cloud reject timesheet error:', err));
   };
 
   const handleRevertToDraft = (timesheetId: string) => {
@@ -536,9 +518,7 @@ export default function App() {
 
     const updatedTs: Timesheet = { ...existing, status: 'draft' };
     setTimesheets((prev) => prev.map((t) => (t.id === timesheetId ? updatedTs : t)));
-    if (authUser) {
-      saveTimesheet(updatedTs).catch((err) => console.error('Cloud revert timesheet error:', err));
-    }
+    saveTimesheet(updatedTs).catch((err) => console.error('Cloud revert timesheet error:', err));
   };
 
   // Project CRUD
@@ -548,23 +528,17 @@ export default function App() {
       id: `proj-${Date.now()}`,
     };
     setProjects((prev) => [...prev, newProject]);
-    if (authUser) {
-      saveProject(newProject).catch((err) => console.error('Cloud save project error:', err));
-    }
+    saveProject(newProject).catch((err) => console.error('Cloud save project error:', err));
   };
 
   const handleUpdateProject = (updated: Project) => {
     setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-    if (authUser) {
-      saveProject(updated).catch((err) => console.error('Cloud update project error:', err));
-    }
+    saveProject(updated).catch((err) => console.error('Cloud update project error:', err));
   };
 
   const handleDeleteProject = (id: string) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
-    if (authUser) {
-      deleteProject(id).catch((err) => console.error('Cloud delete project error:', err));
-    }
+    deleteProject(id).catch((err) => console.error('Cloud delete project error:', err));
   };
 
   const handleResetSeedData = async () => {
@@ -575,9 +549,7 @@ export default function App() {
     setTimesheets(generateSeedTimesheets());
     handleDiscardTimer();
     localStorage.clear();
-    if (authUser) {
-      await seedInitialDataIfEmpty();
-    }
+    await seedInitialDataIfEmpty();
   };
 
   return (

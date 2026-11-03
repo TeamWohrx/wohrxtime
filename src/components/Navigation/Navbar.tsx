@@ -131,34 +131,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Cloud Sync & Auth Button */}
-          {authUser ? (
-            <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 px-2.5 py-1.5 rounded-lg text-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="hidden lg:inline font-medium text-emerald-700 dark:text-emerald-300">
-                Sincronizado
-              </span>
+          {/* Cloud Real-Time Sync Indicator */}
+          <div
+            className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 px-2.5 py-1.5 rounded-lg text-xs"
+            title="Sincronización activa en la nube en tiempo real entre ordenadores"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-medium text-emerald-700 dark:text-emerald-300">
+              En vivo
+            </span>
+            {authUser ? (
               <button
                 onClick={onLogout}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 cursor-pointer p-0.5 rounded"
-                title={`Cerrar sesión (${authUser.email || ''})`}
+                title={`Conectado como: ${authUser.email || ''} (clic para cerrar)`}
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
-            </div>
-          ) : (
-            <button
-              onClick={onLogin}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer"
-              title="Iniciar sesión para sincronizar entre todos los ordenadores"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Conectar Equipo</span>
-            </button>
-          )}
+            ) : (
+              <button
+                onClick={onLogin}
+                className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 ml-1 cursor-pointer p-0.5 rounded"
+                title="Vincular cuenta de Google (opcional)"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
           {/* Dark / Light Mode Switch */}
           <button

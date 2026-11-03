@@ -2,36 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny catch-all
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+      return id is string && id.size() > 0 && id.size() <= 128;
     }
 
     function incoming() {
       return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isVerified() {
-      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
-    }
-
-    function isAdmin() {
-      return isVerified() && (
-        request.auth.token.email == 'NahMendozaCrespo@gmail.com' ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-      );
     }
 
     function isValidUser(data) {
@@ -80,38 +56,36 @@ service cloud.firestore {
 
     // Admins registry
     match /admins/{adminId} {
-      allow read: if isVerified();
+      allow read: if true;
       allow write: if false;
     }
 
     // Users collection
     match /users/{userId} {
-      allow read: if isVerified();
-      allow create, update: if isVerified() && isValidUser(incoming());
-      allow delete: if isAdmin();
+      allow read: if true;
+      allow create, update: if isValidUser(incoming());
+      allow delete: if true;
     }
 
     // Projects collection
     match /projects/{projectId} {
-      allow read: if isVerified();
-      allow create, update: if isVerified() && isValidProject(incoming());
-      allow delete: if isAdmin();
+      allow read: if true;
+      allow create, update: if isValidProject(incoming());
+      allow delete: if true;
     }
 
     // Time entries collection
     match /timeEntries/{entryId} {
-      allow read: if isVerified();
-      allow create: if isVerified() && isValidTimeEntry(incoming());
-      allow update: if isVerified() && isValidTimeEntry(incoming());
-      allow delete: if isVerified();
+      allow read: if true;
+      allow create, update: if isValidTimeEntry(incoming());
+      allow delete: if true;
     }
 
     // Timesheets collection
     match /timesheets/{timesheetId} {
-      allow read: if isVerified();
-      allow create: if isVerified() && isValidTimesheet(incoming());
-      allow update: if isVerified() && isValidTimesheet(incoming());
-      allow delete: if isVerified();
+      allow read: if true;
+      allow create, update: if isValidTimesheet(incoming());
+      allow delete: if true;
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Real-time Firestore synchronization service for Wohrx Time
+ * Real-time Firestore synchronization service for CronosFlow
  */
 import {
   collection,
@@ -26,6 +26,19 @@ const COLLECTIONS = {
 } as const;
 
 /**
+ * Remove undefined properties so Firestore setDoc does not throw
+ */
+function cleanForFirestore<T extends Record<string, any>>(obj: T): T {
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned as T;
+}
+
+/**
  * Subscribe to all users in real-time
  */
 export function subscribeToUsers(onUpdate: (users: User[]) => void): () => void {
@@ -37,9 +50,12 @@ export function subscribeToUsers(onUpdate: (users: User[]) => void): () => void 
       snapshot.forEach((docSnap) => {
         items.push(docSnap.data() as User);
       });
-      onUpdate(items);
+      if (items.length > 0) {
+        onUpdate(items);
+      }
     },
     (error) => {
+      console.warn('Real-time users subscription warning:', error);
       handleFirestoreError(error, OperationType.GET, COLLECTIONS.USERS);
     }
   );
@@ -57,9 +73,12 @@ export function subscribeToProjects(onUpdate: (projects: Project[]) => void): ()
       snapshot.forEach((docSnap) => {
         items.push(docSnap.data() as Project);
       });
-      onUpdate(items);
+      if (items.length > 0) {
+        onUpdate(items);
+      }
     },
     (error) => {
+      console.warn('Real-time projects subscription warning:', error);
       handleFirestoreError(error, OperationType.GET, COLLECTIONS.PROJECTS);
     }
   );
@@ -80,6 +99,7 @@ export function subscribeToTimeEntries(onUpdate: (entries: TimeEntry[]) => void)
       onUpdate(items);
     },
     (error) => {
+      console.warn('Real-time time entries subscription warning:', error);
       handleFirestoreError(error, OperationType.GET, COLLECTIONS.TIME_ENTRIES);
     }
   );
@@ -100,6 +120,7 @@ export function subscribeToTimesheets(onUpdate: (timesheets: Timesheet[]) => voi
       onUpdate(items);
     },
     (error) => {
+      console.warn('Real-time timesheets subscription warning:', error);
       handleFirestoreError(error, OperationType.GET, COLLECTIONS.TIMESHEETS);
     }
   );
@@ -112,8 +133,9 @@ export async function saveTimeEntry(entry: TimeEntry): Promise<void> {
   const path = `${COLLECTIONS.TIME_ENTRIES}/${entry.id}`;
   try {
     const docRef = doc(db, COLLECTIONS.TIME_ENTRIES, entry.id);
-    await setDoc(docRef, entry);
+    await setDoc(docRef, cleanForFirestore(entry));
   } catch (error) {
+    console.error('Error saving time entry:', error);
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
@@ -127,6 +149,7 @@ export async function deleteTimeEntry(id: string): Promise<void> {
     const docRef = doc(db, COLLECTIONS.TIME_ENTRIES, id);
     await deleteDoc(docRef);
   } catch (error) {
+    console.error('Error deleting time entry:', error);
     handleFirestoreError(error, OperationType.DELETE, path);
   }
 }
@@ -138,8 +161,9 @@ export async function saveProject(project: Project): Promise<void> {
   const path = `${COLLECTIONS.PROJECTS}/${project.id}`;
   try {
     const docRef = doc(db, COLLECTIONS.PROJECTS, project.id);
-    await setDoc(docRef, project);
+    await setDoc(docRef, cleanForFirestore(project));
   } catch (error) {
+    console.error('Error saving project:', error);
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
@@ -153,6 +177,7 @@ export async function deleteProject(id: string): Promise<void> {
     const docRef = doc(db, COLLECTIONS.PROJECTS, id);
     await deleteDoc(docRef);
   } catch (error) {
+    console.error('Error deleting project:', error);
     handleFirestoreError(error, OperationType.DELETE, path);
   }
 }
@@ -164,8 +189,9 @@ export async function saveTimesheet(timesheet: Timesheet): Promise<void> {
   const path = `${COLLECTIONS.TIMESHEETS}/${timesheet.id}`;
   try {
     const docRef = doc(db, COLLECTIONS.TIMESHEETS, timesheet.id);
-    await setDoc(docRef, timesheet);
+    await setDoc(docRef, cleanForFirestore(timesheet));
   } catch (error) {
+    console.error('Error saving timesheet:', error);
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
@@ -177,14 +203,15 @@ export async function saveUser(user: User): Promise<void> {
   const path = `${COLLECTIONS.USERS}/${user.id}`;
   try {
     const docRef = doc(db, COLLECTIONS.USERS, user.id);
-    await setDoc(docRef, user);
+    await setDoc(docRef, cleanForFirestore(user));
   } catch (error) {
+    console.error('Error saving user:', error);
     handleFirestoreError(error, OperationType.WRITE, path);
   }
 }
 
 /**
- * Seed initial database records if collections are empty
+ * Seed initial database records if collections are empty in Firestore
  */
 export async function seedInitialDataIfEmpty(): Promise<void> {
   try {
@@ -194,7 +221,7 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
     if (existingUsers.empty) {
       console.log('Seeding initial users into Firestore...');
       for (const u of INITIAL_USERS) {
-        await setDoc(doc(db, COLLECTIONS.USERS, u.id), u);
+        await setDoc(doc(db, COLLECTIONS.USERS, u.id), cleanForFirestore(u));
       }
     }
 
@@ -204,7 +231,7 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
     if (existingProjects.empty) {
       console.log('Seeding initial projects into Firestore...');
       for (const p of INITIAL_PROJECTS) {
-        await setDoc(doc(db, COLLECTIONS.PROJECTS, p.id), p);
+        await setDoc(doc(db, COLLECTIONS.PROJECTS, p.id), cleanForFirestore(p));
       }
     }
 
@@ -215,7 +242,7 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
       console.log('Seeding initial time entries into Firestore...');
       const seedEntries = generateSeedTimeEntries();
       for (const e of seedEntries) {
-        await setDoc(doc(db, COLLECTIONS.TIME_ENTRIES, e.id), e);
+        await setDoc(doc(db, COLLECTIONS.TIME_ENTRIES, e.id), cleanForFirestore(e));
       }
     }
 
@@ -226,10 +253,10 @@ export async function seedInitialDataIfEmpty(): Promise<void> {
       console.log('Seeding initial timesheets into Firestore...');
       const seedTimesheets = generateSeedTimesheets();
       for (const t of seedTimesheets) {
-        await setDoc(doc(db, COLLECTIONS.TIMESHEETS, t.id), t);
+        await setDoc(doc(db, COLLECTIONS.TIMESHEETS, t.id), cleanForFirestore(t));
       }
     }
   } catch (error) {
-    console.warn('Initial seeding note (may already have records or pending auth):', error);
+    console.warn('Initial seeding note (cloud data already exists or concurrent init):', error);
   }
 }
