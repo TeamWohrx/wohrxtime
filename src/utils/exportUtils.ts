@@ -1,5 +1,5 @@
 import { Project, TimeEntry } from '../types';
-import { minutesToDecimalHours } from './timeUtils';
+import { formatDurationHuman, minutesToDecimalHours } from './timeUtils';
 
 export function exportEntriesToCSV(
   entries: TimeEntry[],
@@ -18,8 +18,9 @@ export function exportEntriesToCSV(
     'Descripción de Tarea',
     'Hora Inicio',
     'Hora Fin',
-    'Horas Dedicadas',
+    'Tiempo (x h x mn)',
     'Minutos Totales',
+    'Horas Decimales',
   ];
 
   const escapeCell = (val: string | number | undefined | null): string => {
@@ -31,6 +32,10 @@ export function exportEntriesToCSV(
   const rows = entries.map((entry) => {
     const proj = projectMap.get(entry.projectId);
     const hours = minutesToDecimalHours(entry.durationMinutes);
+    const formattedDuration = formatDurationHuman(entry.durationMinutes, {
+      seconds: entry.durationSeconds,
+      showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
+    });
 
     return [
       escapeCell(entry.id),
@@ -41,8 +46,9 @@ export function exportEntriesToCSV(
       escapeCell(entry.description || '-'),
       escapeCell(entry.startTime || '-'),
       escapeCell(entry.endTime || '-'),
-      escapeCell(hours),
+      escapeCell(formattedDuration),
       escapeCell(entry.durationMinutes),
+      escapeCell(hours),
     ].join(',');
   });
 
@@ -74,6 +80,11 @@ export function exportEntriesToExcel(
       const hours = minutesToDecimalHours(entry.durationMinutes);
       totalMin += entry.durationMinutes;
 
+      const formattedDuration = formatDurationHuman(entry.durationMinutes, {
+        seconds: entry.durationSeconds,
+        showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
+      });
+
       return `
       <tr>
         <td style="padding: 6px; border: 1px solid #d1d5db;">${entry.date}</td>
@@ -83,12 +94,14 @@ export function exportEntriesToExcel(
         <td style="padding: 6px; border: 1px solid #d1d5db;">${entry.description || '-'}</td>
         <td style="padding: 6px; border: 1px solid #d1d5db; text-align: center;">${entry.startTime || '-'}</td>
         <td style="padding: 6px; border: 1px solid #d1d5db; text-align: center;">${entry.endTime || '-'}</td>
-        <td style="padding: 6px; border: 1px solid #d1d5db; text-align: right; font-weight: bold;">${hours.toFixed(2)} h</td>
+        <td style="padding: 6px; border: 1px solid #d1d5db; text-align: right; font-weight: bold;">${formattedDuration}</td>
+        <td style="padding: 6px; border: 1px solid #d1d5db; text-align: right; color: #475569;">${hours.toFixed(2)} h</td>
       </tr>`;
     })
     .join('');
 
   const totalHours = minutesToDecimalHours(totalMin);
+  const totalFormatted = formatDurationHuman(totalMin);
 
   const excelTemplate = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -108,8 +121,8 @@ export function exportEntriesToExcel(
       <p>Generado el: ${new Date().toLocaleString('es-ES')}</p>
       <table style="margin-bottom: 20px;">
         <tr class="summary-header">
-          <td style="padding: 8px; border: 1px solid #cbd5e1;">Total Horas Trabajadas:</td>
-          <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; color: #4338ca;">${totalHours.toFixed(2)} h</td>
+          <td style="padding: 8px; border: 1px solid #cbd5e1;">Total Tiempo Trabajado:</td>
+          <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; color: #4338ca;">${totalFormatted} (${totalHours.toFixed(2)} h)</td>
           <td style="padding: 8px; border: 1px solid #cbd5e1;">Total Registros:</td>
           <td style="padding: 8px; border: 1px solid #cbd5e1;">${entries.length}</td>
         </tr>
@@ -124,13 +137,15 @@ export function exportEntriesToExcel(
             <th>Descripción de Tarea</th>
             <th>Inicio</th>
             <th>Fin</th>
-            <th>Horas Dedicadas</th>
+            <th>Tiempo (x h x mn)</th>
+            <th>Horas Decimales</th>
           </tr>
         </thead>
         <tbody>
           ${rowsHtml}
           <tr class="total-row">
-            <td colspan="7" style="padding: 10px; text-align: right; border: 1px solid #94a3b8;">TOTAL HORAS ACUMULADAS:</td>
+            <td colspan="7" style="padding: 10px; text-align: right; border: 1px solid #94a3b8;">TOTAL TIEMPO ACUMULADO:</td>
+            <td style="padding: 10px; text-align: right; border: 1px solid #94a3b8; font-weight: bold; color: #4338ca;">${totalFormatted}</td>
             <td style="padding: 10px; text-align: right; border: 1px solid #94a3b8; color: #4338ca;">${totalHours.toFixed(2)} h</td>
           </tr>
         </tbody>

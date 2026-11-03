@@ -6,6 +6,7 @@ import {
 } from '../../utils/exportUtils';
 import {
   formatDateSpanish,
+  formatDurationHuman,
   getPresetDateRange,
   minutesToDecimalHours,
 } from '../../utils/timeUtils';
@@ -126,6 +127,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
         return {
           project: proj,
+          minutes: projMinutes,
           hours: projHours,
           percentage,
           count: projEntries.length,
@@ -146,6 +148,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         const pct = totalHours > 0 ? Math.round((hrs / totalHours) * 100) : 0;
         return {
           area: areaName,
+          minutes: min,
           hours: hrs,
           percentage: pct,
           count: areaEntries.length,
@@ -381,10 +384,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <Clock className="w-4 h-4 text-indigo-500" />
           </div>
           <p className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
-            {totalHours}h
+            {formatDurationHuman(totalMinutes)}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            En {filteredEntries.length} bloques de trabajo registrados
+            {totalHours}h decimales en {filteredEntries.length} bloques de trabajo
           </p>
         </div>
 
@@ -444,10 +447,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               </span>
             </div>
             <p className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
-              {item.hours}h
+              {formatDurationHuman(item.minutes)}
             </p>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              {item.count} tareas registradas
+              {item.hours}h · {item.count} tareas registradas
             </p>
           </div>
         ))}
@@ -568,10 +571,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                 {/* Donut center label */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
-                    {totalHours}h
+                  <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 text-center px-1">
+                    {formatDurationHuman(totalMinutes)}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Total</span>
+                  <span className="text-[10px] text-slate-400 font-medium">Total ({totalHours}h)</span>
                 </div>
               </div>
             )}
@@ -592,7 +595,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 </div>
                 <div className="flex items-center gap-2 font-mono shrink-0">
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    {item.hours}h
+                    {formatDurationHuman(item.minutes)}
                   </span>
                   <span className="text-slate-400 text-[11px]">({item.percentage}%)</span>
                 </div>
@@ -636,7 +639,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <th className="py-2.5 px-4 font-semibold">Proyecto</th>
                 <th className="py-2.5 px-4 font-semibold">Descripción de la Tarea</th>
                 <th className="py-2.5 px-4 font-semibold text-center">Horario</th>
-                <th className="py-2.5 px-4 font-semibold text-right">Horas Dedicadas</th>
+                <th className="py-2.5 px-4 font-semibold text-right">Tiempo Dedicado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -684,8 +687,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       <td className="py-2.5 px-4 text-center font-mono text-slate-500 whitespace-nowrap">
                         {entry.startTime && entry.endTime ? `${entry.startTime} - ${entry.endTime}` : '-'}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
-                        {hours}h
+                      <td className="py-2.5 px-4 text-right font-mono">
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-slate-900 dark:text-slate-100">
+                            {formatDurationHuman(entry.durationMinutes, {
+                              seconds: entry.durationSeconds,
+                              showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
+                            })}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            ({hours}h)
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -695,10 +708,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <tfoot>
               <tr className="bg-slate-50 dark:bg-slate-800/60 border-t-2 border-slate-200 dark:border-slate-800 font-bold">
                 <td colSpan={6} className="py-3 px-4 text-right uppercase text-slate-600 dark:text-slate-400">
-                  Total Horas Filtradas:
+                  Total Tiempo Acumulado:
                 </td>
                 <td className="py-3 px-4 text-right font-mono text-indigo-600 dark:text-indigo-400 text-sm">
-                  {totalHours}h
+                  <div className="flex flex-col items-end">
+                    <span className="font-bold text-sm">
+                      {formatDurationHuman(totalMinutes)}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-normal">
+                      ({totalHours}h)
+                    </span>
+                  </div>
                 </td>
               </tr>
             </tfoot>

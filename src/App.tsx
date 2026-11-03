@@ -40,7 +40,6 @@ import { TimesheetView } from './components/Timesheets/TimesheetView';
 import { ReportsView } from './components/Reports/ReportsView';
 import { ProjectsView } from './components/Projects/ProjectsView';
 import { decimalHoursToMinutes, toISODateString } from './utils/timeUtils';
-import { Cloud, LogIn, Sparkles, Users } from 'lucide-react';
 
 const STORAGE_KEYS = {
   USERS: 'cronosflow_users_v4',
@@ -359,6 +358,7 @@ export default function App() {
       startTime: startTimeStr,
       endTime: endTimeStr,
       durationMinutes,
+      durationSeconds: timer.elapsedSeconds,
       createdAt: now.toISOString(),
     };
 
@@ -602,28 +602,6 @@ export default function App() {
         isSyncActive={isSyncActive}
       />
 
-      {/* Cloud Sync Announcement / Onboarding Banner when not logged in */}
-      {!authUser && (
-        <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white px-4 py-3 shadow-sm no-print">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded-lg bg-white/10 shrink-0">
-                <Cloud className="w-4 h-4 text-white" />
-              </div>
-              <p>
-                <span className="font-bold">Base de datos en la nube lista:</span> Para que tus horas y proyectos se sincronicen en vivo con los ordenadores de tus compañeros, conecta tu cuenta.
-              </p>
-            </div>
-            <button
-              onClick={handleLogin}
-              className="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 font-semibold hover:bg-indigo-50 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>Conectar con Google</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Main Content Viewport */}
       <main className="flex-1 pb-16">

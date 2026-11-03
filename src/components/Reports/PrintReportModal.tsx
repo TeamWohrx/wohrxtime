@@ -1,6 +1,6 @@
 import React from 'react';
 import { Project, TimeEntry, User } from '../../types';
-import { formatDateSpanish, minutesToDecimalHours } from '../../utils/timeUtils';
+import { formatDateSpanish, formatDurationHuman, minutesToDecimalHours } from '../../utils/timeUtils';
 import { Printer, X, FileText, CheckCircle2 } from 'lucide-react';
 
 interface PrintReportModalProps {
@@ -37,6 +37,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
       return {
         project: proj,
         entriesCount: projEntries.length,
+        minutes: projMin,
         hours: projHours,
       };
     })
@@ -48,6 +49,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
     const min = areaEntries.reduce((acc, e) => acc + e.durationMinutes, 0);
     return {
       area: areaName,
+      minutes: min,
       hours: minutesToDecimalHours(min),
       count: areaEntries.length,
     };
@@ -137,8 +139,9 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
           {/* KPI Summary Boxes (Zero billing, pure hours) */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="p-4 border border-slate-200 rounded-lg bg-white">
-              <p className="text-xs text-slate-500 uppercase tracking-wider">Total Horas Dedicadas</p>
-              <p className="text-2xl font-bold font-mono text-slate-900 mt-1">{totalHours}h</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Total Tiempo Dedicado</p>
+              <p className="text-2xl font-bold font-mono text-slate-900 mt-1">{formatDurationHuman(totalMinutes)}</p>
+              <p className="text-[11px] text-slate-500 font-mono">({totalHours}h decimales)</p>
             </div>
             <div className="p-4 border border-slate-200 rounded-lg bg-white">
               <p className="text-xs text-slate-500 uppercase tracking-wider">Bloques de Trabajo</p>
@@ -161,8 +164,8 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
               {areaBreakdown.map((item) => (
                 <div key={item.area} className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
                   <p className="text-xs text-slate-500 uppercase font-semibold">{item.area}</p>
-                  <p className="text-lg font-bold font-mono text-slate-900 mt-1">{item.hours}h</p>
-                  <p className="text-[11px] text-slate-400">{item.count} tareas registradas</p>
+                  <p className="text-lg font-bold font-mono text-slate-900 mt-1">{formatDurationHuman(item.minutes)}</p>
+                  <p className="text-[11px] text-slate-400">{item.hours}h · {item.count} tareas</p>
                 </div>
               ))}
             </div>
@@ -179,7 +182,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                   <th className="py-2 px-3 font-semibold">Proyecto</th>
                   <th className="py-2 px-3 font-semibold">Área</th>
                   <th className="py-2 px-3 font-semibold text-center">Registros</th>
-                  <th className="py-2 px-3 font-semibold text-right">Horas Dedicadas</th>
+                  <th className="py-2 px-3 font-semibold text-right">Tiempo Dedicado</th>
                   <th className="py-2 px-3 font-semibold text-right">% del Total</th>
                 </tr>
               </thead>
@@ -195,7 +198,9 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                     </td>
                     <td className="py-2.5 px-3 text-slate-600">{item.project.area}</td>
                     <td className="py-2.5 px-3 text-center font-mono">{item.entriesCount}</td>
-                    <td className="py-2.5 px-3 text-right font-mono font-medium">{item.hours}h</td>
+                    <td className="py-2.5 px-3 text-right font-mono font-medium">
+                      {formatDurationHuman(item.minutes)} <span className="text-slate-400 font-normal text-[11px]">({item.hours}h)</span>
+                    </td>
                     <td className="py-2.5 px-3 text-right font-mono text-slate-600">
                       {totalHours > 0 ? Math.round((item.hours / totalHours) * 100) : 0}%
                     </td>
@@ -218,7 +223,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                   <th className="py-2 px-3 font-semibold">Área</th>
                   <th className="py-2 px-3 font-semibold">Proyecto</th>
                   <th className="py-2 px-3 font-semibold">Descripción del Trabajo</th>
-                  <th className="py-2 px-3 font-semibold text-right">Horas</th>
+                  <th className="py-2 px-3 font-semibold text-right">Tiempo Dedicado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -240,7 +245,15 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                         {proj ? proj.name : entry.projectName || 'General'}
                       </td>
                       <td className="py-2 px-3 text-slate-700 max-w-xs">{entry.description || '-'}</td>
-                      <td className="py-2 px-3 text-right font-mono font-medium">{hours}h</td>
+                      <td className="py-2 px-3 text-right font-mono font-medium">
+                        <div>
+                          {formatDurationHuman(entry.durationMinutes, {
+                            seconds: entry.durationSeconds,
+                            showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
+                          })}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-normal">({hours}h)</div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -248,10 +261,11 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
               <tfoot>
                 <tr className="border-t-2 border-slate-300 font-bold bg-slate-50">
                   <td colSpan={5} className="py-3 px-3 text-right uppercase">
-                    Total Horas Acumuladas:
+                    Total Tiempo Acumulado:
                   </td>
                   <td className="py-3 px-3 text-right font-mono text-sm text-indigo-700">
-                    {totalHours}h
+                    <div>{formatDurationHuman(totalMinutes)}</div>
+                    <div className="text-xs text-slate-500 font-normal">({totalHours}h)</div>
                   </td>
                 </tr>
               </tfoot>

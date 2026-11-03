@@ -11,12 +11,63 @@ export function formatSecondsToDigital(totalSeconds: number): string {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
+export interface FormatDurationOptions {
+  seconds?: number;
+  showSeconds?: boolean | 'auto';
+  alwaysShowHours?: boolean;
+}
+
+/**
+ * Formats time duration into user-friendly "X h Y mn" (and optional "Z s")
+ * Examples:
+ *   3 minutes -> "0 h 03 mn"
+ *   3 minutes 20s -> "0 h 03 mn 20 s"
+ *   75 minutes -> "1 h 15 mn"
+ */
+export function formatDurationHuman(
+  minutes: number,
+  options?: FormatDurationOptions
+): string {
+  const alwaysShowHours = options?.alwaysShowHours ?? true;
+  const showSecondsOpt = options?.showSeconds;
+
+  const totalSec =
+    options?.seconds !== undefined
+      ? Math.max(0, Math.round(options.seconds))
+      : Math.max(0, Math.round(minutes * 60));
+
+  const hours = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+
+  const shouldShowSeconds =
+    showSecondsOpt === true ||
+    (showSecondsOpt === 'auto' && secs > 0) ||
+    (showSecondsOpt === undefined && secs > 0);
+
+  if (shouldShowSeconds) {
+    if (hours > 0 || alwaysShowHours) {
+      return `${hours} h ${mins.toString().padStart(2, '0')} mn ${secs.toString().padStart(2, '0')} s`;
+    }
+    return `${mins} mn ${secs.toString().padStart(2, '0')} s`;
+  }
+
+  if (hours > 0 || alwaysShowHours) {
+    return `${hours} h ${mins.toString().padStart(2, '0')} mn`;
+  }
+
+  return `${mins} mn`;
+}
+
+export function formatSecondsToHuman(
+  totalSeconds: number,
+  options?: Omit<FormatDurationOptions, 'seconds'>
+): string {
+  return formatDurationHuman(totalSeconds / 60, { ...options, seconds: totalSeconds });
+}
+
 export function formatMinutesToHours(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m}m`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
+  return formatDurationHuman(minutes);
 }
 
 export function minutesToDecimalHours(minutes: number): number {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActiveTimer, DepartmentArea, Project, TimeEntry, User } from '../../types';
 import {
   formatDateSpanish,
+  formatDurationHuman,
   formatMinutesToHours,
   formatSecondsToDigital,
   minutesToDecimalHours,
@@ -666,9 +667,17 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                           )}
 
                           {/* Duration */}
-                          <span className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100 w-16 text-right">
-                            {formatMinutesToHours(entry.durationMinutes)}
-                          </span>
+                          <div className="text-right shrink-0">
+                            <span className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100 block">
+                              {formatDurationHuman(entry.durationMinutes, {
+                                seconds: entry.durationSeconds,
+                                showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
+                              })}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-400 block">
+                              ({(entry.durationMinutes / 60).toFixed(2)}h)
+                            </span>
+                          </div>
 
                           {/* Action icons */}
                           <div className="flex items-center gap-1">
@@ -759,20 +768,27 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Duración (minutos)</label>
-                <input
-                  type="number"
-                  step="5"
-                  min="5"
-                  value={editingEntry.durationMinutes}
-                  onChange={(e) =>
-                    setEditingEntry({
-                      ...editingEntry,
-                      durationMinutes: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono"
-                />
+                <label className="block text-xs font-semibold text-slate-500 mb-1">
+                  Duración ({formatDurationHuman(editingEntry.durationMinutes)})
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="1"
+                    min="1"
+                    value={editingEntry.durationMinutes}
+                    onChange={(e) =>
+                      setEditingEntry({
+                        ...editingEntry,
+                        durationMinutes: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono pr-16"
+                  />
+                  <span className="absolute right-3 top-2 text-xs text-slate-400 pointer-events-none">
+                    minutos
+                  </span>
+                </div>
               </div>
             </div>
 

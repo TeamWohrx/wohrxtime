@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActiveTimer, DepartmentArea, User } from '../../types';
 import { formatSecondsToDigital } from '../../utils/timeUtils';
-import { Clock, Moon, Sun, ChevronDown, Check, Shield, Cloud, CloudOff, LogIn, LogOut } from 'lucide-react';
+import { Clock, Moon, Sun, ChevronDown, Check, Shield, Cloud, CloudOff, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: 'tracker' | 'timesheets' | 'reports' | 'projects';
@@ -143,21 +143,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="font-medium text-emerald-700 dark:text-emerald-300">
               En vivo
             </span>
-            {authUser ? (
+            {authUser && (
               <button
                 onClick={onLogout}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 cursor-pointer p-0.5 rounded"
                 title={`Conectado como: ${authUser.email || ''} (clic para cerrar)`}
               >
                 <LogOut className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <button
-                onClick={onLogin}
-                className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 ml-1 cursor-pointer p-0.5 rounded"
-                title="Vincular cuenta de Google (opcional)"
-              >
-                <LogIn className="w-3.5 h-3.5" />
               </button>
             )}
           </div>

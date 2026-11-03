@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DepartmentArea, Project, TimeEntry, User } from '../../types';
-import { minutesToDecimalHours } from '../../utils/timeUtils';
+import { formatDurationHuman, minutesToDecimalHours } from '../../utils/timeUtils';
 import {
   FolderKanban,
   Users,
@@ -114,6 +114,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
     return {
       project: p,
+      totalMinutes,
       totalHours,
       budgetPercent,
       isOverBudget,
@@ -194,7 +195,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       {/* Projects List View */}
       {activeTab === 'projects' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projectMetrics.map(({ project, totalHours, budgetPercent, isOverBudget, entriesCount }) => (
+          {projectMetrics.map(({ project, totalMinutes, totalHours, budgetPercent, isOverBudget, entriesCount }) => (
             <div
               key={project.id}
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
@@ -249,7 +250,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div>
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-semibold text-slate-600 dark:text-slate-400">
-                    Horas: {totalHours}h / {project.budgetHours}h objetivo
+                    Tiempo: {formatDurationHuman(totalMinutes)} ({totalHours}h) / {project.budgetHours}h objetivo
                   </span>
                   <span
                     className={`font-mono font-bold ${
@@ -353,9 +354,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                         <div className="flex items-center gap-6 self-start sm:self-auto text-xs">
                           <div>
-                            <span className="text-slate-500 block">Horas Acumuladas:</span>
-                            <span className="font-bold font-mono text-slate-900 dark:text-slate-100 text-sm">
-                              {userHours}h
+                            <span className="text-slate-500 block">Tiempo Acumulado:</span>
+                            <span className="font-bold font-mono text-slate-900 dark:text-slate-100 text-sm block">
+                              {formatDurationHuman(userMin)}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono block">
+                              ({userHours}h)
                             </span>
                           </div>
                           <div>

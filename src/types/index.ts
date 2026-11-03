@@ -34,6 +34,7 @@ export interface TimeEntry {
   startTime?: string; // HH:mm
   endTime?: string; // HH:mm
   durationMinutes: number; // en minutos
+  durationSeconds?: number; // segundos exactos si proviene del temporizador en vivo
   timesheetId?: string;
   createdAt: string;
 }
