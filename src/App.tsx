@@ -39,7 +39,7 @@ import { TimeTrackerView } from './components/TimeTracker/TimeTrackerView';
 import { TimesheetView } from './components/Timesheets/TimesheetView';
 import { ReportsView } from './components/Reports/ReportsView';
 import { ProjectsView } from './components/Projects/ProjectsView';
-import { decimalHoursToMinutes, toISODateString } from './utils/timeUtils';
+import { decimalHoursToMinutes, formatSecondsToDigital, toISODateString } from './utils/timeUtils';
 
 const STORAGE_KEYS = {
   USERS: 'cronosflow_users_v4',
@@ -154,16 +154,31 @@ export default function App() {
     }
   });
 
-  // Active Timer state
+  // Active Timer state (Timestamp-based with wall-clock calculation)
   const [timer, setTimer] = useState<ActiveTimer>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TIMER);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: ActiveTimer = JSON.parse(saved);
+        if (parsed.isRunning && !parsed.isPaused && parsed.startTime) {
+          const current = (parsed.accumulatedSeconds || 0) + Math.floor((Date.now() - parsed.startTime) / 1000);
+          return {
+            ...parsed,
+            accumulatedSeconds: parsed.accumulatedSeconds || 0,
+            elapsedSeconds: Math.max(0, current),
+          };
+        }
+        return {
+          ...parsed,
+          accumulatedSeconds: parsed.accumulatedSeconds || 0,
+        };
+      }
     } catch {}
     return {
       isRunning: false,
       isPaused: false,
       startTime: null,
+      accumulatedSeconds: 0,
       elapsedSeconds: 0,
       projectName: 'Sistemas',
       description: '',
@@ -271,21 +286,58 @@ export default function App() {
     }
   }, [users, currentUser, projects, entries, timesheets, timer]);
 
-  // Timer Tick Hook
+  // Timer Tick & Background Tab Synchronization Hook
+  // Uses real Date.now() timestamp math so time never halts or lags when user works in another screen or tab
   useEffect(() => {
-    let interval: any = null;
-    if (timer.isRunning && !timer.isPaused) {
-      interval = setInterval(() => {
-        setTimer((prev) => ({
-          ...prev,
-          elapsedSeconds: prev.elapsedSeconds + 1,
-        }));
-      }, 1000);
-    } else {
-      clearInterval(interval);
+    if (!timer.isRunning || timer.isPaused || !timer.startTime) {
+      return;
     }
-    return () => clearInterval(interval);
-  }, [timer.isRunning, timer.isPaused]);
+
+    const syncElapsed = () => {
+      setTimer((prev) => {
+        if (!prev.isRunning || prev.isPaused || !prev.startTime) return prev;
+        const current = (prev.accumulatedSeconds || 0) + Math.floor((Date.now() - prev.startTime) / 1000);
+        if (prev.elapsedSeconds === current) return prev;
+        return {
+          ...prev,
+          elapsedSeconds: Math.max(0, current),
+        };
+      });
+    };
+
+    // Immediate sync
+    syncElapsed();
+
+    // 250ms interval ensures seconds tick cleanly and smoothly without drift
+    const interval = setInterval(syncElapsed, 250);
+
+    // Immediate recalculation as soon as the user refocuses the window or switches tabs
+    const handleVisibilityOrFocus = () => {
+      syncElapsed();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    window.addEventListener('pageshow', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      window.removeEventListener('pageshow', handleVisibilityOrFocus);
+    };
+  }, [timer.isRunning, timer.isPaused, timer.startTime, timer.accumulatedSeconds]);
+
+  // Synchronize browser tab title with running timer so users can see the time from other windows
+  useEffect(() => {
+    if (timer.isRunning) {
+      const digital = formatSecondsToDigital(timer.elapsedSeconds);
+      const icon = timer.isPaused ? '⏸' : '▶';
+      document.title = `${icon} ${digital} - Wohrxtime`;
+    } else {
+      document.title = 'Wohrxtime - Control de Tiempo y Planillas';
+    }
+  }, [timer.isRunning, timer.isPaused, timer.elapsedSeconds]);
 
   // Auth Handlers
   const handleLogin = async () => {
@@ -306,7 +358,7 @@ export default function App() {
     }
   };
 
-  // Timer Handlers
+  // Timer Handlers (Wall-clock accurate across multiple screens & background tabs)
   const handleStartTimer = (projectName: string, description: string) => {
     const proj = ensureProjectExists(projectName, currentUser.area);
 
@@ -314,6 +366,7 @@ export default function App() {
       isRunning: true,
       isPaused: false,
       startTime: Date.now(),
+      accumulatedSeconds: 0,
       elapsedSeconds: 0,
       projectName: proj.name,
       projectId: proj.id,
@@ -322,26 +375,53 @@ export default function App() {
   };
 
   const handlePauseTimer = () => {
-    setTimer((prev) => ({ ...prev, isPaused: true }));
+    setTimer((prev) => {
+      if (!prev.isRunning || prev.isPaused) return prev;
+      const currentSegment = prev.startTime
+        ? Math.floor((Date.now() - prev.startTime) / 1000)
+        : 0;
+      const totalAccum = (prev.accumulatedSeconds || 0) + currentSegment;
+      return {
+        ...prev,
+        isPaused: true,
+        startTime: null,
+        accumulatedSeconds: totalAccum,
+        elapsedSeconds: totalAccum,
+      };
+    });
   };
 
   const handleResumeTimer = () => {
-    setTimer((prev) => ({ ...prev, isPaused: false }));
+    setTimer((prev) => {
+      if (!prev.isRunning || !prev.isPaused) return prev;
+      return {
+        ...prev,
+        isPaused: false,
+        startTime: Date.now(),
+      };
+    });
   };
 
   const handleStopTimer = () => {
-    if (timer.elapsedSeconds < 5) {
+    // Calculate exact wall-clock seconds right now
+    const currentSegment =
+      timer.isRunning && !timer.isPaused && timer.startTime
+        ? Math.floor((Date.now() - timer.startTime) / 1000)
+        : 0;
+    const finalSeconds = (timer.accumulatedSeconds || 0) + currentSegment;
+
+    if (finalSeconds < 5) {
       handleDiscardTimer();
       return;
     }
 
-    const durationMinutes = Math.max(1, Math.round(timer.elapsedSeconds / 60));
+    const durationMinutes = Math.max(1, Math.round(finalSeconds / 60));
     const now = new Date();
     const todayStr = toISODateString(now);
 
     const pad = (n: number) => String(n).padStart(2, '0');
     const endTimeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const startDate = new Date(now.getTime() - timer.elapsedSeconds * 1000);
+    const startDate = new Date(now.getTime() - finalSeconds * 1000);
     const startTimeStr = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
 
     const proj = ensureProjectExists(timer.projectName || currentUser.area, currentUser.area);
@@ -358,7 +438,7 @@ export default function App() {
       startTime: startTimeStr,
       endTime: endTimeStr,
       durationMinutes,
-      durationSeconds: timer.elapsedSeconds,
+      durationSeconds: finalSeconds,
       createdAt: now.toISOString(),
     };
 
@@ -369,6 +449,7 @@ export default function App() {
       isRunning: false,
       isPaused: false,
       startTime: null,
+      accumulatedSeconds: 0,
       elapsedSeconds: 0,
       projectName: currentUser.area,
       description: '',
@@ -381,6 +462,7 @@ export default function App() {
       isRunning: false,
       isPaused: false,
       startTime: null,
+      accumulatedSeconds: 0,
       elapsedSeconds: 0,
       description: '',
     }));

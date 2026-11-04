@@ -60,6 +60,7 @@ export interface ActiveTimer {
   isRunning: boolean;
   isPaused: boolean;
   startTime: number | null; // Date.now() timestamp
+  accumulatedSeconds?: number; // Segundos acumulados antes de pausar/reanudar
   elapsedSeconds: number;
   projectName: string;
   projectId?: string;
