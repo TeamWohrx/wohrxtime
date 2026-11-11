@@ -698,6 +698,8 @@ export default function App() {
             entries={entries}
             projects={projects}
             currentUser={currentUser}
+            allUsers={users}
+            onSelectUser={setCurrentUser}
             onAddManualEntry={handleAddManualEntry}
             onDeleteEntry={handleDeleteEntry}
             onUpdateEntry={handleUpdateEntry}

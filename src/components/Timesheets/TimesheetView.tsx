@@ -135,6 +135,18 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
     return true;
   });
 
+  // Robust matcher for user entries by id or by name
+  const isEntryForUser = (entry: TimeEntry, user: User): boolean => {
+    if (entry.userId && user.id && entry.userId === user.id) return true;
+    const entryName = (entry.userName || '').toLowerCase().trim();
+    const targetName = (user.name || '').toLowerCase().trim();
+    if (entryName && targetName) {
+      if (entryName === targetName) return true;
+      if (entryName.includes(targetName) || targetName.includes(entryName)) return true;
+    }
+    return false;
+  };
+
   // Calculate daily totals for each person in exact seconds
   const userDaySeconds: Record<string, number> = {};
   const userWeekSeconds: Record<string, number> = {};
@@ -143,7 +155,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
     let weekSec = 0;
     weekDays.forEach((day) => {
       const userDayEntries = allWeekEntries.filter(
-        (e) => e.userId === u.id && e.date === day.dateStr
+        (e) => isEntryForUser(e, u) && e.date === day.dateStr
       );
       const daySec = userDayEntries.reduce((acc, e) => acc + getEntrySec(e), 0);
       userDaySeconds[`${u.id}_${day.dateStr}`] = daySec;
@@ -168,7 +180,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
   );
 
   // --- DATA COMPUTATION FOR "BY PROJECT" INDIVIDUAL MATRIX ---
-  const individualWeekEntries = allWeekEntries.filter((e) => e.userId === selectedUserId);
+  const individualWeekEntries = allWeekEntries.filter((e) => isEntryForUser(e, viewingUser));
 
   const activeProjectNames = Array.from(
     new Set(individualWeekEntries.map((e) => e.projectName))
@@ -228,7 +240,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
 
   const handleOpenDayDetail = (user: User, dateStr: string, dayLabel: string, totalSeconds: number) => {
     const dayEntries = allWeekEntries.filter(
-      (e) => e.userId === user.id && e.date === dateStr
+      (e) => isEntryForUser(e, user) && e.date === dateStr
     );
     setInspectedDay({
       user,
@@ -245,7 +257,9 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
     setViewMode('by_project');
   };
 
-  const targetHours = 40;
+  // Metas laborales: 2 horas por día y 10 horas semanales
+  const targetDailyHours = 2;
+  const targetWeeklyHours = 10;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6">
@@ -409,7 +423,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                     const userTotalWeekSec = userWeekSeconds[user.id] || 0;
                     const weekProgress = Math.min(
                       100,
-                      Math.round((userTotalWeekSec / (targetHours * 3600)) * 100)
+                      Math.round((userTotalWeekSec / (targetWeeklyHours * 3600)) * 100)
                     );
 
                     return (
@@ -437,7 +451,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         {/* Daily Total per Person (Lun to Dom) */}
                         {weekDays.map((day) => {
                           const daySec = userDaySeconds[`${user.id}_${day.dateStr}`] || 0;
-                          const isNormalShift = daySec >= 8 * 3600;
+                          const isNormalShift = daySec >= targetDailyHours * 3600;
 
                           return (
                             <td
@@ -463,7 +477,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                                     ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100'
                                     : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100'
                                 }`}
-                                title={`Ver tareas de ${user.name} el ${day.dayNameShort}: ${formatSecondsToHuman(daySec)}`}
+                                title={`Ver tareas de ${user.name} el ${day.dayNameShort}: ${formatSecondsToHuman(daySec)} (Meta diaria: ${targetDailyHours}h)`}
                               >
                                 {daySec > 0 ? formatSecondsToHuman(daySec) : '-'}
                               </button>
@@ -475,7 +489,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         <td className="py-3 px-4 text-right bg-slate-50/30 dark:bg-slate-800/30">
                           <span
                             className={`font-mono font-bold text-xs ${
-                              userTotalWeekSec >= 40 * 3600
+                              userTotalWeekSec >= targetWeeklyHours * 3600
                                 ? 'text-emerald-600 dark:text-emerald-400'
                                 : userTotalWeekSec > 0
                                 ? 'text-slate-900 dark:text-slate-100'
@@ -487,7 +501,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                               : '0 h 00 mn'}
                           </span>
                           <span className="text-[10px] text-slate-400 block font-mono">
-                            {weekProgress}% de 40h
+                            {weekProgress}% de {targetWeeklyHours}h
                           </span>
                         </td>
 
@@ -541,11 +555,11 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
               <span className="flex items-center gap-3">
                 <span className="flex items-center gap-1 text-emerald-600 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  Jornada completa (≥ 8h)
+                  Meta diaria cumplida (≥ 2h)
                 </span>
                 <span className="flex items-center gap-1 text-indigo-600 font-medium">
                   <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                  Jornada parcial
+                  Jornada parcial (&lt; 2h)
                 </span>
               </span>
             </div>
@@ -663,17 +677,17 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs">
             <div className="flex items-center justify-between text-xs mb-2">
               <span className="font-semibold text-slate-700 dark:text-slate-300">
-                Horas Semanales de {viewingUser.name}: {formatSecondsToHuman(individualTotalWeekSeconds)} (Objetivo: 40 h 00 mn)
+                Horas Semanales de {viewingUser.name}: {formatSecondsToHuman(individualTotalWeekSeconds)} (Meta semanal: 10 h 00 mn)
               </span>
               <span className="font-mono text-slate-500">
-                {Math.min(100, Math.round((individualTotalWeekSeconds / (targetHours * 3600)) * 100))}% cumplido
+                {Math.min(100, Math.round((individualTotalWeekSeconds / (targetWeeklyHours * 3600)) * 100))}% cumplido
               </span>
             </div>
             <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
                 className="h-full bg-indigo-600 rounded-full transition-all duration-300"
                 style={{
-                  width: `${Math.min(100, Math.round((individualTotalWeekSeconds / (targetHours * 3600)) * 100))}%`,
+                  width: `${Math.min(100, Math.round((individualTotalWeekSeconds / (targetWeeklyHours * 3600)) * 100))}%`,
                 }}
               />
             </div>

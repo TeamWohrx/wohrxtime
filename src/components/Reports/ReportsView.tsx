@@ -82,7 +82,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       // Area
       if (filterArea !== 'all' && e.userArea !== filterArea) return false;
       // User
-      if (filterUserId !== 'all' && e.userId !== filterUserId) return false;
+      if (filterUserId !== 'all') {
+        const targetUser = allUsers.find((u) => u.id === filterUserId);
+        const matchesId = e.userId === filterUserId;
+        const matchesName =
+          targetUser &&
+          e.userName &&
+          e.userName.toLowerCase().trim() === targetUser.name.toLowerCase().trim();
+        if (!matchesId && !matchesName) return false;
+      }
 
       // Table search
       if (tableSearch) {

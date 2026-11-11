@@ -5,6 +5,8 @@ import {
   formatDurationHuman,
   formatMinutesToHours,
   formatSecondsToDigital,
+  getMondayOfWeek,
+  getWeekDays,
   minutesToDecimalHours,
   toISODateString,
 } from '../../utils/timeUtils';
@@ -20,6 +22,14 @@ import {
   Filter,
   Briefcase,
   Sparkles,
+  Users,
+  CheckCircle2,
+  Target,
+  ChevronDown,
+  ChevronUp,
+  UserCheck,
+  User as UserIcon,
+  Calendar,
 } from 'lucide-react';
 
 interface TimeTrackerViewProps {
@@ -32,6 +42,8 @@ interface TimeTrackerViewProps {
   entries: TimeEntry[];
   projects: Project[];
   currentUser: User;
+  allUsers?: User[];
+  onSelectUser?: (user: User) => void;
   onAddManualEntry: (entry: Omit<TimeEntry, 'id' | 'createdAt'>) => void;
   onDeleteEntry: (id: string) => void;
   onUpdateEntry: (entry: TimeEntry) => void;
@@ -49,6 +61,8 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
   entries,
   projects,
   currentUser,
+  allUsers,
+  onSelectUser,
   onAddManualEntry,
   onDeleteEntry,
   onUpdateEntry,
@@ -62,6 +76,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
   );
 
   // Manual entry local inputs
+  const [manualUserId, setManualUserId] = useState<string>(currentUser.id);
   const [manualDate, setManualDate] = useState(toISODateString(new Date()));
   const [manualStartTime, setManualStartTime] = useState('09:00');
   const [manualEndTime, setManualEndTime] = useState('13:00');
@@ -70,9 +85,27 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
   const [manualDescription, setManualDescription] = useState('');
   const [manualProjectInput, setManualProjectInput] = useState<string>(currentUser.area);
 
+  // Sync manualUserId when currentUser changes
+  React.useEffect(() => {
+    setManualUserId(currentUser.id);
+  }, [currentUser.id]);
+
   // Search & filter
   const [searchQuery, setSearchQuery] = useState('');
   const [filterProject, setFilterProject] = useState('all');
+  const [filterUser, setFilterUser] = useState('all');
+
+  // Team profiles panel toggle, area filter, date selection & view mode
+  const todayStr = toISODateString(new Date());
+  const yesterdayStr = (() => {
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    return toISODateString(y);
+  })();
+  const [showTeamProfilesPanel, setShowTeamProfilesPanel] = useState(true);
+  const [panelAreaFilter, setPanelAreaFilter] = useState('all');
+  const [panelSelectedDate, setPanelSelectedDate] = useState<string>(todayStr);
+  const [panelViewMode, setPanelViewMode] = useState<'day' | 'week'>('day');
 
   // Edit entry modal state
   const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null);
@@ -102,6 +135,21 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
     );
   };
 
+  // List of all active users in the system
+  const effectiveUsers = allUsers && allUsers.length > 0 ? allUsers : [currentUser];
+
+  // Robust matcher: matches an entry by user ID, or by full name, or by first name
+  const isUserEntry = (entry: TimeEntry, user: User): boolean => {
+    if (entry.userId && user.id && entry.userId === user.id) return true;
+    const entryName = (entry.userName || '').toLowerCase().trim();
+    const targetName = (user.name || '').toLowerCase().trim();
+    if (entryName && targetName) {
+      if (entryName === targetName) return true;
+      if (entryName.includes(targetName) || targetName.includes(entryName)) return true;
+    }
+    return false;
+  };
+
   const handleSaveManual = (e: React.FormEvent) => {
     e.preventDefault();
     const finalProject = manualProjectInput.trim() || currentUser.area;
@@ -126,10 +174,12 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
       (p) => p.name.toLowerCase() === finalProject.toLowerCase()
     );
 
+    const chosenUser = effectiveUsers.find((u) => u.id === manualUserId) || currentUser;
+
     onAddManualEntry({
-      userId: currentUser.id,
-      userName: currentUser.name,
-      userArea: currentUser.area,
+      userId: chosenUser.id,
+      userName: chosenUser.name,
+      userArea: chosenUser.area,
       projectId: matchedProject?.id || `proj-${Date.now()}`,
       projectName: finalProject,
       description: manualDescription.trim() || 'Registro de actividad',
@@ -143,13 +193,68 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
     setManualDescription('');
   };
 
-  // Calculate today's metrics
-  const todayStr = toISODateString(new Date());
-  const todayEntries = entries.filter((e) => e.date === todayStr);
-  const todayMinutes = todayEntries.reduce((acc, e) => acc + e.durationMinutes, 0);
-  const todayHours = minutesToDecimalHours(todayMinutes);
-  const dailyGoalHours = 8;
-  const dailyProgress = Math.min(100, Math.round((todayHours / dailyGoalHours) * 100));
+  // Metrics calculation for Today (Current active user)
+  const todayEntriesAll = entries.filter((e) => e.date === todayStr);
+  const myTodayEntries = todayEntriesAll.filter((e) => isUserEntry(e, currentUser));
+  const myTodayMinutes = myTodayEntries.reduce((acc, e) => acc + (e.durationMinutes || 0), 0);
+  const myTodayHours = minutesToDecimalHours(myTodayMinutes);
+  const dailyGoalHours = 2; // Meta de 2 horas x día (10h semanales)
+  const myDailyProgress = Math.min(100, Math.round((myTodayHours / dailyGoalHours) * 100));
+  const isMyGoalMet = myTodayHours >= dailyGoalHours;
+
+  // Panel compliance calculation based on selected date & view mode (Day: 2h, Week: 10h)
+  const panelMonday = getMondayOfWeek(panelSelectedDate);
+  const panelWeekDays = getWeekDays(panelMonday);
+  const panelMondayStr = toISODateString(panelMonday);
+  const panelSundayStr = panelWeekDays[6].dateStr;
+  const targetGoalHours = panelViewMode === 'day' ? 2 : 10;
+
+  const filteredPanelEntries = entries.filter((e) => {
+    if (panelViewMode === 'day') {
+      return e.date === panelSelectedDate;
+    }
+    return e.date >= panelMondayStr && e.date <= panelSundayStr;
+  });
+
+  // Team profiles stats calculation
+  const teamUsersTodayStats = effectiveUsers.map((u) => {
+    const userEntries = filteredPanelEntries.filter((e) => isUserEntry(e, u));
+    const userMinutes = userEntries.reduce((acc, e) => acc + (e.durationMinutes || 0), 0);
+    const userHours = minutesToDecimalHours(userMinutes);
+    const userProgress = Math.min(100, Math.round((userHours / targetGoalHours) * 100));
+    const isGoalMet = userHours >= targetGoalHours;
+
+    // Check if user currently has an unsaved running timer
+    const isLiveActiveUser =
+      timer.isRunning &&
+      isUserEntry(
+        { userId: currentUser.id, userName: currentUser.name } as TimeEntry,
+        u
+      );
+    const runningLiveSeconds = isLiveActiveUser ? timer.elapsedSeconds : 0;
+
+    return {
+      user: u,
+      entriesCount: userEntries.length,
+      minutes: userMinutes,
+      hours: userHours,
+      progress: userProgress,
+      isGoalMet,
+      hasRunningTimer: isLiveActiveUser && runningLiveSeconds > 0,
+      runningLiveSeconds,
+    };
+  });
+
+  // Totales generales del equipo para la vista seleccionada
+  const teamTotalTodayMinutes = filteredPanelEntries.reduce((acc, e) => acc + (e.durationMinutes || 0), 0);
+  const teamTotalTodayHours = minutesToDecimalHours(teamTotalTodayMinutes);
+  const usersCompletedGoalCount = teamUsersTodayStats.filter((s) => s.isGoalMet).length;
+
+  // Perfiles filtrados para el panel de colaboradores
+  const displayedProfiles = teamUsersTodayStats.filter((item) => {
+    if (panelAreaFilter !== 'all' && item.user.area !== panelAreaFilter) return false;
+    return true;
+  });
 
   // Filtered entries list
   const filteredEntries = entries.filter((entry) => {
@@ -161,7 +266,13 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
     const matchesProject =
       filterProject === 'all' ||
       entry.projectName.toLowerCase() === filterProject.toLowerCase();
-    return matchesSearch && matchesProject;
+    const matchesUser =
+      filterUser === 'all' ||
+      (filterUser === 'my_entries' && isUserEntry(entry, currentUser)) ||
+      (effectiveUsers.find((u) => u.id === filterUser)
+        ? isUserEntry(entry, effectiveUsers.find((u) => u.id === filterUser)!)
+        : entry.userId === filterUser);
+    return matchesSearch && matchesProject && matchesUser;
   });
 
   // Group entries by date descending
@@ -378,7 +489,33 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
           onSubmit={handleSaveManual}
           className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-6 shadow-xs space-y-4"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Colaborador / Perfil */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                Colaborador / Perfil
+              </label>
+              <select
+                value={manualUserId}
+                onChange={(e) => {
+                  const uid = e.target.value;
+                  setManualUserId(uid);
+                  const found = effectiveUsers.find((u) => u.id === uid);
+                  if (found) {
+                    setManualProjectInput(found.area);
+                  }
+                }}
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                {effectiveUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.area}) {u.id === currentUser.id ? '· (Tú)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Fecha de Trabajo */}
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Fecha de Trabajo
@@ -497,56 +634,309 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         </form>
       )}
 
-      {/* Today's Productivity Highlights Bar */}
+      {/* Today's Productivity Highlights Bar (Separated for Current User Profile + Team Overview) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Card 1: My Hours Today */}
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            Horas Registradas Hoy
-          </p>
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+            <span className="text-xs font-semibold">Horas de Hoy ({currentUser.name})</span>
+            <Clock className="w-4 h-4 text-indigo-500" />
+          </div>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
-              {formatMinutesToHours(todayMinutes)}
+              {formatMinutesToHours(myTodayMinutes)}
             </span>
             <span className="text-xs text-slate-500 font-mono">
-              ({todayHours}h)
+              ({myTodayHours}h)
             </span>
           </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+            Total del equipo hoy: <strong className="font-mono text-indigo-600 dark:text-indigo-400">{formatMinutesToHours(teamTotalTodayMinutes)}</strong> ({teamTotalTodayHours}h)
+          </p>
         </div>
 
+        {/* Card 2: My Daily Goal (2h) */}
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            Jornada Laboral Diaria (Meta 8h)
-          </p>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">
-              {dailyProgress}%
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+            <span className="text-xs font-semibold">Mi Jornada Diaria (Meta 2h)</span>
+            <Target className="w-4 h-4 text-emerald-500" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className={`text-2xl font-bold font-mono ${isMyGoalMet ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+              {myDailyProgress}%
             </span>
             <span className="text-xs text-slate-500 font-mono">
-              {todayHours}h de 8h
+              {myTodayHours}h de 2h {isMyGoalMet && '✅'}
             </span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
             <div
-              className="h-full bg-indigo-600 rounded-full transition-all"
-              style={{ width: `${dailyProgress}%` }}
+              className={`h-full rounded-full transition-all ${isMyGoalMet ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+              style={{ width: `${myDailyProgress}%` }}
             />
           </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+            {isMyGoalMet ? '¡Has completado tu meta diaria de 2 horas! 🎉' : `Te faltan ${formatDurationHuman(Math.max(0, 120 - myTodayMinutes))} para cumplir la meta`}
+          </p>
         </div>
 
+        {/* Card 3: Team Goal Compliance */}
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            Bloques de Actividad Hoy
-          </p>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-              {todayEntries.length}
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+            <span className="text-xs font-semibold">Cumplimiento del Equipo Hoy</span>
+            <Users className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
+              {usersCompletedGoalCount} / {effectiveUsers.length}
             </span>
             <span className="text-xs text-slate-500">
-              {todayEntries.length === 1 ? 'registro' : 'registros'}
+              {usersCompletedGoalCount === 1 ? 'cumplió la meta' : 'cumplieron la meta'}
             </span>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowTeamProfilesPanel(!showTeamProfilesPanel)}
+            className="w-full mt-2.5 py-1 px-2.5 text-xs font-medium rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 flex items-center justify-between transition-colors cursor-pointer"
+          >
+            <span>{showTeamProfilesPanel ? 'Ocultar panel por perfil' : 'Ver panel por perfil (Meta 2h)'}</span>
+            {showTeamProfilesPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* PANEL DE CUMPLIMIENTO POR PERFIL (DÍA META 2H / SEMANA META 10H)          */}
+      {/* ========================================================================= */}
+      {showTeamProfilesPanel && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Panel de Cumplimiento por Perfil ({panelViewMode === 'day' ? 'Meta: 2h diarias' : 'Meta: 10h semanales'})
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {panelViewMode === 'day' ? (
+                  <>
+                    Fecha: <strong className="text-slate-700 dark:text-slate-300 capitalize">{formatDateSpanish(panelSelectedDate)}</strong>
+                    {panelSelectedDate === todayStr ? ' (Hoy)' : panelSelectedDate === yesterdayStr ? ' (Ayer)' : ''} · Meta individual: 2 horas por día
+                  </>
+                ) : (
+                  <>
+                    Semana del <strong className="text-slate-700 dark:text-slate-300">{formatDateSpanish(panelMondayStr)}</strong> al <strong className="text-slate-700 dark:text-slate-300">{formatDateSpanish(panelSundayStr)}</strong> · Meta individual: 10 horas semanales
+                  </>
+                )}
+              </p>
+            </div>
+
+            {/* Panel Controls: Mode Switch, Date Picker & Area Filter */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Day / Week Switcher */}
+              <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+                <button
+                  type="button"
+                  onClick={() => setPanelViewMode('day')}
+                  className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                    panelViewMode === 'day'
+                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  Día (2h)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPanelViewMode('week')}
+                  className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                    panelViewMode === 'week'
+                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  Semana (10h)
+                </button>
+              </div>
+
+              {/* Quick Date Buttons (when in day mode) */}
+              {panelViewMode === 'day' && (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setPanelSelectedDate(todayStr)}
+                    className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
+                      panelSelectedDate === todayStr
+                        ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-semibold'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPanelSelectedDate(yesterdayStr)}
+                    className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
+                      panelSelectedDate === yesterdayStr
+                        ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-semibold'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    Ayer
+                  </button>
+
+                  <div className="relative flex items-center">
+                    <input
+                      type="date"
+                      value={panelSelectedDate}
+                      onChange={(e) => e.target.value && setPanelSelectedDate(e.target.value)}
+                      title="Seleccionar otra fecha para revisar cumplimiento"
+                      className="px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Filter by area */}
+              <div className="flex items-center gap-1 pl-2 border-l border-slate-200 dark:border-slate-700">
+                {(['all', 'Marketing', 'RRHH', 'Sistemas', 'Administrador'] as const).map((area) => (
+                  <button
+                    key={area}
+                    onClick={() => setPanelAreaFilter(area)}
+                    className={`px-2 py-1 text-[11px] font-medium rounded-md transition-colors cursor-pointer ${
+                      panelAreaFilter === area
+                        ? 'bg-indigo-600 text-white shadow-2xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    {area === 'all' ? `Todos` : area}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Grid of Profile Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {displayedProfiles.map((stat) => {
+              const isCurrentUser = stat.user.id === currentUser.id;
+
+              return (
+                <div
+                  key={stat.user.id}
+                  className={`p-3.5 rounded-xl border transition-all ${
+                    isCurrentUser
+                      ? 'bg-indigo-50/30 dark:bg-indigo-950/20 border-indigo-300 dark:border-indigo-800 ring-1 ring-indigo-500/20'
+                      : 'bg-slate-50/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  }`}
+                >
+                  {/* Profile Header */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 truncate">
+                      <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+                        {stat.user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="truncate">
+                        <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 block truncate">
+                          {stat.user.name}
+                        </span>
+                        <span className="text-[10px] text-slate-500 block">
+                          {stat.user.area} {isCurrentUser && '· (Tu perfil)'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    {stat.isGoalMet ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                        <CheckCircle2 className="w-3 h-3" />
+                        {targetGoalHours}h cumplidas
+                      </span>
+                    ) : stat.hours > 0 ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shrink-0">
+                        <Clock className="w-3 h-3" />
+                        {stat.progress}%
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-normal rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
+                        0h de {targetGoalHours}h
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Hours & Progress */}
+                  <div className="space-y-1.5 my-2.5">
+                    <div className="flex items-baseline justify-between text-xs font-mono">
+                      <span className="font-bold text-slate-900 dark:text-slate-100">
+                        {formatDurationHuman(stat.minutes)}
+                      </span>
+                      <span className="text-slate-400 text-[11px]">
+                        {stat.hours}h de {targetGoalHours}h
+                      </span>
+                    </div>
+
+                    <div className="w-full h-1.5 bg-slate-200/80 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          stat.isGoalMet
+                            ? 'bg-emerald-500'
+                            : stat.hours > 0
+                            ? 'bg-indigo-600'
+                            : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                        style={{ width: `${Math.min(100, stat.progress)}%` }}
+                      />
+                    </div>
+
+                    {/* Notice if live timer is currently running for this user */}
+                    {stat.hasRunningTimer && (
+                      <div className="mt-1.5 px-2 py-1 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-[10px] text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+                        <span>
+                          +{formatDurationHuman(Math.floor(stat.runningLiveSeconds / 60), {
+                            seconds: stat.runningLiveSeconds,
+                            showSeconds: true,
+                          })}{' '}
+                          en temporizador (presiona Guardar para sumar)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer / Quick Actions */}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
+                    <span className="text-slate-500 text-[10px]">
+                      {stat.entriesCount} {stat.entriesCount === 1 ? 'registro' : 'registros'}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      {onSelectUser && !isCurrentUser && (
+                        <button
+                          type="button"
+                          onClick={() => onSelectUser(stat.user)}
+                          className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold cursor-pointer"
+                          title={`Cambiar a usar el perfil de ${stat.user.name}`}
+                        >
+                          Usar perfil
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setFilterUser(stat.user.id)}
+                        className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:underline cursor-pointer"
+                        title={`Filtrar lista de tareas para ver solo a ${stat.user.name}`}
+                      >
+                        Ver tareas
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
@@ -561,20 +951,43 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <select
-            value={filterProject}
-            onChange={(e) => setFilterProject(e.target.value)}
-            className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="all">Todos los proyectos / áreas</option>
-            {allProjectNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filter by User */}
+          <div className="flex items-center gap-1.5">
+            <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+            <select
+              value={filterUser}
+              onChange={(e) => setFilterUser(e.target.value)}
+              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none"
+            >
+              <option value="all">Todos los colaboradores ({effectiveUsers.length})</option>
+              <option value="my_entries">Solo mis tareas ({currentUser.name})</option>
+              <optgroup label="Filtrar por integrante">
+                {effectiveUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.area})
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+
+          {/* Filter by Project */}
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-slate-400" />
+            <select
+              value={filterProject}
+              onChange={(e) => setFilterProject(e.target.value)}
+              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none"
+            >
+              <option value="all">Todos los proyectos / áreas</option>
+              {allProjectNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -721,6 +1134,31 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Editar Registro de Tiempo
             </h3>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Colaborador / Perfil</label>
+              <select
+                value={editingEntry.userId}
+                onChange={(e) => {
+                  const u = effectiveUsers.find((user) => user.id === e.target.value);
+                  if (u) {
+                    setEditingEntry({
+                      ...editingEntry,
+                      userId: u.id,
+                      userName: u.name,
+                      userArea: u.area,
+                    });
+                  }
+                }}
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+              >
+                {effectiveUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.area})
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">Descripción de la Tarea</label>
