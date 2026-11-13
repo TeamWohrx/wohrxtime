@@ -24,15 +24,16 @@ interface ProjectsViewProps {
   onResetSeedData: () => void;
 }
 
+// Preset colors aligned with Wohrx V6 Brandbook
 const PRESET_COLORS = [
-  '#3B82F6', // Blue
-  '#06B6D4', // Cyan
-  '#6366F1', // Indigo
-  '#F59E0B', // Amber
-  '#EC4899', // Pink
-  '#8B5CF6', // Purple
-  '#10B981', // Emerald
-  '#14B8A6', // Teal
+  '#003F9B', // Wohrx Azul (Ancla Institucional)
+  '#FF3282', // Wohrx Magenta (Energía & Dinamismo)
+  '#5E47DF', // Wohrx Violeta (Estrategia & Liderazgo)
+  '#141313', // Wohrx Negro (Estructura)
+  '#8F9193', // Wohrx Gris (Orden & Aire)
+  '#3B82F6', // Azul Digital
+  '#10B981', // Esmeralda
+  '#F59E0B', // Ámbar
 ];
 
 const AREAS: DepartmentArea[] = ['Marketing', 'RRHH', 'Sistemas', 'Administrador'];
@@ -139,7 +140,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           {activeTab === 'projects' && (
             <button
               onClick={handleOpenNewProject}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg shadow-sm transition-all cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>Nuevo Proyecto</span>
@@ -216,7 +217,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEditProject(project)}
-                      className="p-1 text-slate-400 hover:text-indigo-600 rounded-md transition-colors cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-[#003F9B] dark:hover:text-[#60A5FA] rounded-md transition-colors cursor-pointer"
                       title="Editar proyecto"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -267,8 +268,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       isOverBudget
                         ? 'bg-rose-500'
                         : budgetPercent > 80
-                        ? 'bg-amber-500'
-                        : 'bg-indigo-600'
+                        ? 'bg-[#FF3282]'
+                        : 'bg-[#003F9B]'
                     }`}
                     style={{ width: `${Math.min(100, budgetPercent)}%` }}
                   />
@@ -398,7 +399,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
@@ -470,7 +471,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg cursor-pointer shadow-sm active:scale-[0.98]"
               >
                 Guardar Proyecto
               </button>

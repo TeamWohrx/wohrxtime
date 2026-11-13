@@ -238,7 +238,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           <button
             onClick={() => setIsPrintModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg shadow-sm transition-colors cursor-pointer"
             title="Generar reporte imprimible o guardar como PDF"
           >
             <FileText className="w-3.5 h-3.5" />
@@ -277,7 +277,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
                   preset === key
-                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800'
+                    ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-blue-300 border border-[#003F9B]/30 font-semibold'
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent'
                 }`}
               >
@@ -306,7 +306,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 setCustomStart(r.start);
                 setCustomEnd(r.end);
               }}
-              className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold cursor-pointer"
+              className="text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline font-semibold cursor-pointer"
             >
               Ver Esta semana (26 Oct - 1 Nov) →
             </button>
@@ -389,7 +389,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Horas Totales</span>
-            <Clock className="w-4 h-4 text-indigo-500" />
+            <Clock className="w-4 h-4 text-[#003F9B]" />
           </div>
           <p className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
             {formatDurationHuman(totalMinutes)}
@@ -404,7 +404,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <span className="text-xs font-semibold uppercase tracking-wider">Promedio Diario</span>
             <Activity className="w-4 h-4 text-emerald-500" />
           </div>
-          <p className="text-3xl font-bold font-mono text-indigo-600 dark:text-indigo-400">
+          <p className="text-3xl font-bold font-mono text-[#003F9B] dark:text-blue-400">
             {averageHoursPerDay}h
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -471,7 +471,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-indigo-600" />
+                <BarChart3 className="w-4 h-4 text-[#003F9B]" />
                 Evolución de Horas Trabajadas por Día
               </h3>
               <p className="text-xs text-slate-500">
@@ -499,9 +499,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     >
                       {/* Tooltip on hover */}
                       {hoveredBarIndex === idx && (
-                        <div className="absolute -top-14 z-20 bg-slate-900 text-white text-[11px] py-1.5 px-2.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                        <div className="absolute -top-14 z-20 bg-[#141313] text-white text-[11px] py-1.5 px-2.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none border border-[#FF3282]/30">
                           <p className="font-semibold">{formatDateSpanish(stat.dateStr)}</p>
-                          <p className="text-indigo-300 font-mono font-bold">Total: {stat.hours}h</p>
+                          <p className="text-[#FF3282] font-mono font-bold">Total: {stat.hours}h</p>
                           <p className="text-slate-300 text-[10px]">{stat.count} tareas</p>
                         </div>
                       )}
@@ -509,7 +509,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       {/* Bar */}
                       <div className="w-full max-w-[36px] flex flex-col items-center justify-end h-44">
                         <div
-                          className="w-full bg-indigo-600 rounded-t-xs transition-all duration-200 group-hover:bg-indigo-500"
+                          className="w-full bg-[#003F9B] rounded-t-xs transition-all duration-200 group-hover:bg-[#FF3282]"
                           style={{ height: `${dayHeight}%` }}
                         />
                       </div>
@@ -718,7 +718,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <td colSpan={6} className="py-3 px-4 text-right uppercase text-slate-600 dark:text-slate-400">
                   Total Tiempo Acumulado:
                 </td>
-                <td className="py-3 px-4 text-right font-mono text-indigo-600 dark:text-indigo-400 text-sm">
+                <td className="py-3 px-4 text-right font-mono text-[#003F9B] dark:text-blue-400 text-sm">
                   <div className="flex flex-col items-end">
                     <span className="font-bold text-sm">
                       {formatDurationHuman(totalMinutes)}

@@ -27,9 +27,7 @@ import {
   Target,
   ChevronDown,
   ChevronUp,
-  UserCheck,
   User as UserIcon,
-  Calendar,
 } from 'lucide-react';
 
 interface TimeTrackerViewProps {
@@ -346,7 +344,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={timer.isRunning}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
@@ -365,7 +363,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={projectNameInput}
                 onChange={(e) => setProjectNameInput(e.target.value)}
                 disabled={timer.isRunning}
-                className="w-full px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
               <datalist id="projects-datalist">
                 {allProjectNames.map((name) => (
@@ -394,7 +392,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 {!timer.isRunning ? (
                   <button
                     onClick={handleStart}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-[#003F9B] hover:bg-[#00327D] shadow-md shadow-[#003F9B]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
                   >
                     <Play className="w-4 h-4 fill-current" />
                     <span>Iniciar</span>
@@ -404,7 +402,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     {timer.isPaused ? (
                       <button
                         onClick={onResumeTimer}
-                        className="p-2.5 rounded-lg text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                        className="p-2.5 rounded-lg text-white bg-[#003F9B] hover:bg-[#00327D] shadow-sm transition-colors cursor-pointer"
                         title="Reanudar temporizador"
                       >
                         <Play className="w-5 h-5 fill-current" />
@@ -421,7 +419,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
                     <button
                       onClick={onStopTimer}
-                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-[#FF3282] hover:bg-[#E62870] shadow-md shadow-[#FF3282]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
                       title="Guardar registro en la planilla"
                     >
                       <Square className="w-4 h-4 fill-current" />
@@ -454,7 +452,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   onClick={() => setProjectNameInput(areaName)}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
                     projectNameInput === areaName
-                      ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-semibold'
+                      ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/50 text-[#003F9B] dark:text-blue-300 font-semibold'
                       : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
                   }`}
                 >
@@ -505,7 +503,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     setManualProjectInput(found.area);
                   }
                 }}
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               >
                 {effectiveUsers.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -525,7 +523,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualDate}
                 onChange={(e) => setManualDate(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
@@ -540,7 +538,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                       key={a}
                       type="button"
                       onClick={() => setManualProjectInput(a)}
-                      className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                      className="text-[10px] text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
                     >
                       {a}
                     </button>
@@ -554,7 +552,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualProjectInput}
                 onChange={(e) => setManualProjectInput(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
               <datalist id="projects-datalist-manual">
                 {allProjectNames.map((name) => (
@@ -571,7 +569,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setManualUseTimeRange(!manualUseTimeRange)}
-                  className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                  className="text-[11px] text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
                 >
                   {manualUseTimeRange ? 'Usar duración directa' : 'Usar inicio/fin'}
                 </button>
@@ -619,13 +617,13 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualDescription}
                 onChange={(e) => setManualDescription(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer"
+              className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-sm font-bold text-white bg-[#003F9B] hover:bg-[#00327D] shadow-md shadow-[#003F9B]/20 transition-all cursor-pointer active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
               <span>Guardar Registro</span>
@@ -640,10 +638,10 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
             <span className="text-xs font-semibold">Horas de Hoy ({currentUser.name})</span>
-            <Clock className="w-4 h-4 text-indigo-500" />
+            <Clock className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
           </div>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
+            <span className="text-2xl font-bold font-mono text-[#003F9B] dark:text-[#60A5FA]">
               {formatMinutesToHours(myTodayMinutes)}
             </span>
             <span className="text-xs text-slate-500 font-mono">
@@ -651,7 +649,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             </span>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-            Total del equipo hoy: <strong className="font-mono text-indigo-600 dark:text-indigo-400">{formatMinutesToHours(teamTotalTodayMinutes)}</strong> ({teamTotalTodayHours}h)
+            Total del equipo hoy: <strong className="font-mono text-[#5E47DF] dark:text-[#A78BFA]">{formatMinutesToHours(teamTotalTodayMinutes)}</strong> ({teamTotalTodayHours}h)
           </p>
         </div>
 
@@ -659,24 +657,30 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
             <span className="text-xs font-semibold">Mi Jornada Diaria (Meta 2h)</span>
-            <Target className="w-4 h-4 text-emerald-500" />
+            <Target className="w-4 h-4 text-[#FF3282]" />
           </div>
           <div className="flex items-baseline justify-between mt-1">
-            <span className={`text-2xl font-bold font-mono ${isMyGoalMet ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+            <span className={`text-2xl font-bold font-mono ${isMyGoalMet ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#FF3282] dark:text-[#FF66A3]'}`}>
               {myDailyProgress}%
             </span>
             <span className="text-xs text-slate-500 font-mono">
-              {myTodayHours}h de 2h {isMyGoalMet && '✅'}
+              {myTodayHours}h de 2h {isMyGoalMet && '✓'}
             </span>
           </div>
-          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${isMyGoalMet ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+              className={`h-full rounded-full transition-all duration-500 ${
+                isMyGoalMet
+                  ? 'bg-emerald-500'
+                  : 'bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282]'
+              }`}
               style={{ width: `${myDailyProgress}%` }}
             />
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-            {isMyGoalMet ? '¡Has completado tu meta diaria de 2 horas! 🎉' : `Te faltan ${formatDurationHuman(Math.max(0, 120 - myTodayMinutes))} para cumplir la meta`}
+            {isMyGoalMet
+              ? 'Has completado tu meta diaria de 2 horas'
+              : `Te faltan ${formatDurationHuman(Math.max(0, 120 - myTodayMinutes))} para cumplir la meta`}
           </p>
         </div>
 
@@ -684,10 +688,10 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
             <span className="text-xs font-semibold">Cumplimiento del Equipo Hoy</span>
-            <Users className="w-4 h-4 text-blue-500" />
+            <Users className="w-4 h-4 text-[#5E47DF] dark:text-[#A78BFA]" />
           </div>
           <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
+            <span className="text-2xl font-bold font-mono text-[#5E47DF] dark:text-[#A78BFA]">
               {usersCompletedGoalCount} / {effectiveUsers.length}
             </span>
             <span className="text-xs text-slate-500">
@@ -697,7 +701,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
           <button
             type="button"
             onClick={() => setShowTeamProfilesPanel(!showTeamProfilesPanel)}
-            className="w-full mt-2.5 py-1 px-2.5 text-xs font-medium rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 flex items-center justify-between transition-colors cursor-pointer"
+            className="w-full mt-2.5 py-1 px-2.5 text-xs font-medium rounded-lg bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-[#93C5FD] hover:bg-[#003F9B]/15 dark:hover:bg-[#003F9B]/40 flex items-center justify-between transition-colors cursor-pointer"
           >
             <span>{showTeamProfilesPanel ? 'Ocultar panel por perfil' : 'Ver panel por perfil (Meta 2h)'}</span>
             {showTeamProfilesPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -713,7 +717,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <Target className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   Panel de Cumplimiento por Perfil ({panelViewMode === 'day' ? 'Meta: 2h diarias' : 'Meta: 10h semanales'})
                 </h3>
@@ -741,7 +745,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   onClick={() => setPanelViewMode('day')}
                   className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
                     panelViewMode === 'day'
-                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                      ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
@@ -752,7 +756,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   onClick={() => setPanelViewMode('week')}
                   className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
                     panelViewMode === 'week'
-                      ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-bold'
+                      ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
@@ -768,7 +772,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     onClick={() => setPanelSelectedDate(todayStr)}
                     className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
                       panelSelectedDate === todayStr
-                        ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-semibold'
+                        ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
@@ -779,7 +783,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     onClick={() => setPanelSelectedDate(yesterdayStr)}
                     className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
                       panelSelectedDate === yesterdayStr
-                        ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-semibold'
+                        ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
@@ -792,7 +796,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                       value={panelSelectedDate}
                       onChange={(e) => e.target.value && setPanelSelectedDate(e.target.value)}
                       title="Seleccionar otra fecha para revisar cumplimiento"
-                      className="px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 focus:outline-none"
+                      className="px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 focus:outline-none focus:border-[#003F9B]"
                     />
                   </div>
                 </div>
@@ -806,11 +810,11 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     onClick={() => setPanelAreaFilter(area)}
                     className={`px-2 py-1 text-[11px] font-medium rounded-md transition-colors cursor-pointer ${
                       panelAreaFilter === area
-                        ? 'bg-indigo-600 text-white shadow-2xs'
+                        ? 'bg-[#003F9B] text-white shadow-2xs'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                     }`}
                   >
-                    {area === 'all' ? `Todos` : area}
+                    {area === 'all' ? 'Todos' : area}
                   </button>
                 ))}
               </div>
@@ -827,14 +831,14 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   key={stat.user.id}
                   className={`p-3.5 rounded-xl border transition-all ${
                     isCurrentUser
-                      ? 'bg-indigo-50/30 dark:bg-indigo-950/20 border-indigo-300 dark:border-indigo-800 ring-1 ring-indigo-500/20'
-                      : 'bg-slate-50/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      ? 'bg-[#003F9B]/5 dark:bg-[#003F9B]/20 border-[#003F9B]/40 dark:border-[#5E47DF]/50 ring-1 ring-[#003F9B]/20'
+                      : 'bg-slate-50/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-[#5E47DF]/40'
                   }`}
                 >
                   {/* Profile Header */}
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 truncate">
-                      <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-[#003F9B] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
                         {stat.user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <div className="truncate">
@@ -849,17 +853,17 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
                     {/* Status Badge */}
                     {stat.isGoalMet ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
                         <CheckCircle2 className="w-3 h-3" />
                         {targetGoalHours}h cumplidas
                       </span>
                     ) : stat.hours > 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-md bg-[#5E47DF]/10 dark:bg-[#5E47DF]/25 text-[#5E47DF] dark:text-[#C4B5FD] border border-[#5E47DF]/30 shrink-0">
                         <Clock className="w-3 h-3" />
                         {stat.progress}%
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-normal rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-normal rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
                         0h de {targetGoalHours}h
                       </span>
                     )}
@@ -882,7 +886,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                           stat.isGoalMet
                             ? 'bg-emerald-500'
                             : stat.hours > 0
-                            ? 'bg-indigo-600'
+                            ? 'bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282]'
                             : 'bg-slate-300 dark:bg-slate-600'
                         }`}
                         style={{ width: `${Math.min(100, stat.progress)}%` }}
@@ -891,8 +895,8 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
                     {/* Notice if live timer is currently running for this user */}
                     {stat.hasRunningTimer && (
-                      <div className="mt-1.5 px-2 py-1 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-[10px] text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+                      <div className="mt-1.5 px-2 py-1 rounded bg-[#FF3282]/10 dark:bg-[#FF3282]/20 border border-[#FF3282]/30 text-[10px] text-[#FF3282] dark:text-[#FF85B3] flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF3282] shrink-0" />
                         <span>
                           +{formatDurationHuman(Math.floor(stat.runningLiveSeconds / 60), {
                             seconds: stat.runningLiveSeconds,
@@ -910,12 +914,12 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                       {stat.entriesCount} {stat.entriesCount === 1 ? 'registro' : 'registros'}
                     </span>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       {onSelectUser && !isCurrentUser && (
                         <button
                           type="button"
                           onClick={() => onSelectUser(stat.user)}
-                          className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold cursor-pointer"
+                          className="text-[#003F9B] dark:text-[#60A5FA] hover:text-[#FF3282] hover:underline font-semibold cursor-pointer"
                           title={`Cambiar a usar el perfil de ${stat.user.name}`}
                         >
                           Usar perfil
@@ -947,7 +951,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             placeholder="Buscar por tarea, colaborador o proyecto..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-[#003F9B]"
           />
         </div>
 
@@ -958,7 +962,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             <select
               value={filterUser}
               onChange={(e) => setFilterUser(e.target.value)}
-              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none"
+              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
             >
               <option value="all">Todos los colaboradores ({effectiveUsers.length})</option>
               <option value="my_entries">Solo mis tareas ({currentUser.name})</option>
@@ -978,7 +982,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             <select
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
-              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none"
+              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
             >
               <option value="all">Todos los proyectos / áreas</option>
               {allProjectNames.map((name) => (
@@ -1096,7 +1100,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleContinueEntry(entry)}
-                              className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-[#003F9B] dark:hover:text-[#60A5FA] rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                               title="Continuar esta tarea en el temporizador"
                             >
                               <Play className="w-3.5 h-3.5 fill-current" />
@@ -1244,7 +1248,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   onUpdateEntry(editingEntry);
                   setEditingEntry(null);
                 }}
-                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg cursor-pointer shadow-sm transition-colors"
               >
                 Guardar Cambios
               </button>

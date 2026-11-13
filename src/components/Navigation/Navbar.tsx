@@ -2,6 +2,7 @@ import React from 'react';
 import { ActiveTimer, DepartmentArea, User } from '../../types';
 import { formatSecondsToDigital } from '../../utils/timeUtils';
 import { Clock, Moon, Sun, ChevronDown, Check, Shield, Cloud, CloudOff, LogOut } from 'lucide-react';
+import { WohrxLogo, WohrxIsotype } from '../WohrxBrandLogo';
 
 interface NavbarProps {
   currentTab: 'tracker' | 'timesheets' | 'reports' | 'projects';
@@ -18,11 +19,25 @@ interface NavbarProps {
   isSyncActive: boolean;
 }
 
+// Aligned with Wohrx V6 Brandbook:
+// Azul #003F9B, Magenta #FF3282, Violeta #5E47DF, Negro #141313
 const AREA_BADGES: Record<DepartmentArea, { bg: string; text: string }> = {
-  Marketing: { bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-700 dark:text-amber-400' },
-  RRHH: { bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-400' },
-  Sistemas: { bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-700 dark:text-blue-400' },
-  Administrador: { bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-700 dark:text-purple-400' },
+  Marketing: {
+    bg: 'bg-[#FF3282]/10 dark:bg-[#FF3282]/20',
+    text: 'text-[#FF3282] dark:text-[#FF66A3] font-semibold',
+  },
+  RRHH: {
+    bg: 'bg-[#5E47DF]/10 dark:bg-[#5E47DF]/20',
+    text: 'text-[#5E47DF] dark:text-[#A78BFA] font-semibold',
+  },
+  Sistemas: {
+    bg: 'bg-[#003F9B]/10 dark:bg-[#003F9B]/20',
+    text: 'text-[#003F9B] dark:text-[#60A5FA] font-semibold',
+  },
+  Administrador: {
+    bg: 'bg-[#141313]/10 dark:bg-white/10',
+    text: 'text-[#141313] dark:text-[#FFFAF8] font-semibold',
+  },
 };
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -56,61 +71,60 @@ export const Navbar: React.FC<NavbarProps> = ({
   const areas: DepartmentArea[] = ['Sistemas', 'Marketing', 'RRHH', 'Administrador'];
 
   return (
-    <header className="no-print h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30 px-4 sm:px-8">
-      <div className="h-full max-w-7xl mx-auto flex items-center justify-between gap-8">
-        {/* Zone 1: Brand mark */}
+    <header className="no-print h-16 border-b border-[#8F9193]/20 dark:border-white/10 bg-[#FFFAF8] dark:bg-[#141313] sticky top-0 z-30 px-4 sm:px-8 relative shadow-xs">
+      {/* Brand Identity Accent Bar (Wohrx V6 Gradient: Azul -> Violeta -> Magenta) */}
+      <div className="h-1 bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282] w-full absolute top-0 left-0" />
+
+      <div className="h-full max-w-7xl mx-auto flex items-center justify-between gap-8 pt-0.5">
+        {/* Zone 1: Brand mark - Wohrx Official Logo */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => onSelectTab('tracker')}
             className="flex items-center gap-2 text-left group cursor-pointer focus:outline-none"
+            title="Wohrx Time - Control de Tiempo & Productividad"
           >
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-xs group-hover:bg-indigo-700 transition-colors">
-              <Clock className="w-4 h-4" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap">
-              Wohrxtime
-            </span>
+            <WohrxLogo variant={isDarkMode ? 'white' : 'blue'} showSubtitle size="md" />
           </button>
         </div>
 
-        {/* Zone 2: Navigation Links (single line, whitespace-nowrap) */}
+        {/* Zone 2: Navigation Links (Roboto / Montserrat typography) */}
         <nav className="hidden md:flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => onSelectTab('tracker')}
-            className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
               currentTab === 'tracker'
-                ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-slate-800/50 font-medium'
             }`}
           >
             Temporizador
           </button>
           <button
             onClick={() => onSelectTab('timesheets')}
-            className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
               currentTab === 'timesheets'
-                ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-slate-800/50 font-medium'
             }`}
           >
             Planillas Semanales
           </button>
           <button
             onClick={() => onSelectTab('reports')}
-            className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
               currentTab === 'reports'
-                ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-slate-800/50 font-medium'
             }`}
           >
-            Informes y Productividad
+            Informes & Productividad
           </button>
           <button
             onClick={() => onSelectTab('projects')}
-            className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
               currentTab === 'projects'
-                ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-slate-800/50 font-medium'
             }`}
           >
             Proyectos & Áreas
@@ -119,14 +133,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Zone 3: Actions (Live timer indicator, Role/User dropdown, Dark toggle) */}
         <div className="flex items-center gap-3 shrink-0">
-          {/* Active Timer mini indicator */}
+          {/* Active Timer mini indicator (Wohrx Magenta Pulse) */}
           {timer.isRunning && (
             <button
               onClick={() => onSelectTab('tracker')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-medium hover:bg-emerald-100 transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF3282]/10 dark:bg-[#FF3282]/20 border border-[#FF3282]/30 text-[#FF3282] dark:text-[#FF66A3] text-xs font-mono font-bold hover:bg-[#FF3282]/20 transition-all cursor-pointer shadow-xs"
               title="Temporizador en marcha - Clic para ver"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#FF3282] animate-pulse" />
               <span>{formatSecondsToDigital(timer.elapsedSeconds)}</span>
             </button>
           )}
@@ -248,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                               </div>
                             </div>
                             {u.id === currentUser.id && (
-                              <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 ml-2" />
+                              <Check className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA] shrink-0 ml-2" />
                             )}
                           </button>
                         ))}
@@ -267,7 +281,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => onSelectTab('tracker')}
           className={`py-1.5 px-2 font-medium ${
-            currentTab === 'tracker' ? 'text-indigo-600 font-bold' : 'text-slate-600'
+            currentTab === 'tracker' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
           Timer
@@ -275,7 +289,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => onSelectTab('timesheets')}
           className={`py-1.5 px-2 font-medium ${
-            currentTab === 'timesheets' ? 'text-indigo-600 font-bold' : 'text-slate-600'
+            currentTab === 'timesheets' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
           Planillas
@@ -283,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => onSelectTab('reports')}
           className={`py-1.5 px-2 font-medium ${
-            currentTab === 'reports' ? 'text-indigo-600 font-bold' : 'text-slate-600'
+            currentTab === 'reports' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
           Informes
@@ -291,7 +305,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => onSelectTab('projects')}
           className={`py-1.5 px-2 font-medium ${
-            currentTab === 'projects' ? 'text-indigo-600 font-bold' : 'text-slate-600'
+            currentTab === 'projects' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
           Proyectos

@@ -280,7 +280,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
             onClick={() => setViewMode('by_person')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
               viewMode === 'by_person'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
@@ -292,7 +292,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
             onClick={() => setViewMode('by_project')}
             className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
               viewMode === 'by_project'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
@@ -387,7 +387,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <span className="text-slate-500">Total general de la semana:</span>
-              <span className="text-base font-bold font-mono text-indigo-600 dark:text-indigo-400">
+              <span className="text-base font-bold font-mono text-[#003F9B] dark:text-[#60A5FA]">
                 {teamTotalWeekSeconds > 0 ? formatSecondsToHuman(teamTotalWeekSeconds) : '0 h 00 mn'}
               </span>
             </div>
@@ -404,7 +404,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                       <th
                         key={day.dateStr}
                         className={`py-3 px-2 font-semibold text-center w-24 ${
-                          day.isToday ? 'bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : ''
+                          day.isToday ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-[#60A5FA]' : ''
                         }`}
                       >
                         <div>{day.dayNameShort}</div>
@@ -457,7 +457,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                             <td
                               key={day.dateStr}
                               className={`p-1.5 text-center ${
-                                day.isToday ? 'bg-indigo-50/20 dark:bg-indigo-950/10' : ''
+                                day.isToday ? 'bg-[#003F9B]/5 dark:bg-[#003F9B]/15' : ''
                               }`}
                             >
                               <button
@@ -475,7 +475,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                                     ? 'text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
                                     : isNormalShift
                                     ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100'
-                                    : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100'
+                                    : 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-[#60A5FA] hover:bg-[#003F9B]/20'
                                 }`}
                                 title={`Ver tareas de ${user.name} el ${day.dayNameShort}: ${formatSecondsToHuman(daySec)} (Meta diaria: ${targetDailyHours}h)`}
                               >
@@ -509,7 +509,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         <td className="py-3 px-3 text-center">
                           <button
                             onClick={() => handleDrilldownUser(user)}
-                            className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-[#003F9B] dark:hover:text-[#60A5FA] rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             title={`Ver detalle por proyectos de ${user.name}`}
                           >
                             <Eye className="w-4 h-4" />
@@ -537,7 +537,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         </td>
                       );
                     })}
-                    <td className="py-3 px-4 text-right font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-slate-100/60 dark:bg-slate-800/90 font-bold">
+                    <td className="py-3 px-4 text-right font-mono text-xs text-[#003F9B] dark:text-[#60A5FA] bg-slate-100/60 dark:bg-slate-800/90 font-bold">
                       {teamTotalWeekSeconds > 0
                         ? formatSecondsToHuman(teamTotalWeekSeconds)
                         : '0 h 00 mn'}
@@ -557,8 +557,8 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   Meta diaria cumplida (≥ 2h)
                 </span>
-                <span className="flex items-center gap-1 text-indigo-600 font-medium">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <span className="flex items-center gap-1 text-[#003F9B] font-medium">
+                  <span className="w-2 h-2 rounded-full bg-[#003F9B]" />
                   Jornada parcial (&lt; 2h)
                 </span>
               </span>
@@ -609,7 +609,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-white shadow-xs transition-colors cursor-pointer ${
                     individualTotalWeekSeconds === 0
                       ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700'
+                      : 'bg-[#003F9B] hover:bg-[#00327D]'
                   }`}
                 >
                   <Send className="w-3.5 h-3.5" />
@@ -685,7 +685,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
             </div>
             <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                className="h-full bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282] rounded-full transition-all duration-300"
                 style={{
                   width: `${Math.min(100, Math.round((individualTotalWeekSeconds / (targetWeeklyHours * 3600)) * 100))}%`,
                 }}
@@ -704,7 +704,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                       <th
                         key={day.dateStr}
                         className={`py-3 px-2 font-semibold text-center w-24 ${
-                          day.isToday ? 'bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400' : ''
+                          day.isToday ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-[#60A5FA]' : ''
                         }`}
                       >
                         <div>{day.dayNameShort}</div>
@@ -738,7 +738,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                             <div className="flex items-center gap-2">
                               <span
                                 className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                  isArea ? 'bg-indigo-600' : 'bg-emerald-500'
+                                  isArea ? 'bg-[#003F9B]' : 'bg-[#5E47DF]'
                                 }`}
                               />
                               <div className="truncate">
@@ -762,7 +762,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                               <td
                                 key={day.dateStr}
                                 className={`p-1.5 text-center ${
-                                  day.isToday ? 'bg-indigo-50/20 dark:bg-indigo-950/10' : ''
+                                  day.isToday ? 'bg-[#003F9B]/5 dark:bg-[#003F9B]/15' : ''
                                 }`}
                               >
                                 <input
@@ -779,9 +779,9 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                                   placeholder="0"
                                   className={`w-full py-1.5 text-center font-mono text-xs rounded border transition-colors ${
                                     currentSec > 0
-                                      ? 'bg-indigo-50/40 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800 font-bold text-slate-900 dark:text-slate-100'
+                                      ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/30 dark:border-[#003F9B]/60 font-bold text-slate-900 dark:text-slate-100'
                                       : 'bg-transparent border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-slate-400'
-                                  } focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 focus:outline-none`}
+                                  } focus:bg-white dark:focus:bg-slate-800 focus:border-[#003F9B] focus:outline-none`}
                                 />
                               </td>
                             );
@@ -810,7 +810,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         </td>
                       );
                     })}
-                    <td className="py-3 px-4 text-right font-mono text-xs text-indigo-600 dark:text-indigo-400 bg-slate-100/60 dark:bg-slate-800/90 font-bold">
+                    <td className="py-3 px-4 text-right font-mono text-xs text-[#003F9B] dark:text-[#60A5FA] bg-slate-100/60 dark:bg-slate-800/90 font-bold">
                       {individualTotalWeekSeconds > 0
                         ? formatSecondsToHuman(individualTotalWeekSeconds)
                         : '0 h 00 mn'}
@@ -836,14 +836,14 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                         key={a}
                         type="button"
                         onClick={() => setNewRowProjectInput(a)}
-                        className="px-2 py-1 text-[11px] rounded bg-slate-200/70 dark:bg-slate-700 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer"
+                        className="px-2 py-1 text-[11px] rounded bg-slate-200/70 dark:bg-slate-700 hover:bg-[#003F9B]/10 hover:text-[#003F9B] cursor-pointer"
                       >
                         {a}
                       </button>
                     ))}
                     <button
                       onClick={handleAddProjectRow}
-                      className="px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-semibold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg cursor-pointer"
                     >
                       Agregar fila
                     </button>
@@ -857,7 +857,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                 ) : (
                   <button
                     onClick={() => setShowAddProjectRow(true)}
-                    className="flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 cursor-pointer"
+                    className="flex items-center gap-1.5 font-semibold text-[#003F9B] dark:text-[#60A5FA] hover:text-[#FF3282] cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>+ Agregar proyecto o área a esta planilla</span>
@@ -883,7 +883,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Total del día ({formatDateSpanish(inspectedDay.dateStr)}):{' '}
-                  <span className="font-bold font-mono text-indigo-600 dark:text-indigo-400">
+                  <span className="font-bold font-mono text-[#003F9B] dark:text-[#60A5FA]">
                     {formatSecondsToHuman(inspectedDay.totalSeconds)}
                   </span>
                 </p>
@@ -912,7 +912,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                     <div className="flex items-center justify-between font-semibold text-slate-800 dark:text-slate-200">
                       <span>{entry.projectName}</span>
                       <div className="text-right">
-                        <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold block">
+                        <span className="font-mono text-[#003F9B] dark:text-[#60A5FA] font-bold block">
                           {formatSecondsToHuman(getEntrySec(entry))}
                         </span>
                       </div>
@@ -936,7 +936,7 @@ export const TimesheetView: React.FC<TimesheetViewProps> = ({
                   setInspectedDay(null);
                   handleDrilldownUser(target);
                 }}
-                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
+                className="text-[#003F9B] dark:text-[#60A5FA] font-semibold hover:text-[#FF3282] hover:underline cursor-pointer"
               >
                 Abrir planilla completa de {inspectedDay.user.name} →
               </button>

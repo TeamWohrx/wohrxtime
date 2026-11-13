@@ -52,10 +52,10 @@ const STORAGE_KEYS = {
 };
 
 const AREA_COLORS: Record<DepartmentArea, string> = {
-  Sistemas: '#3B82F6',
-  Marketing: '#F59E0B',
-  RRHH: '#10B981',
-  Administrador: '#8B5CF6',
+  Sistemas: '#003F9B', // Azul Wohrx (Data Analytics, Sistemas y Certeza)
+  Marketing: '#FF3282', // Magenta Wohrx (Innovación, Marketing y Creatividad)
+  RRHH: '#5E47DF', // Violeta Wohrx (Estrategia, Personas y Coaching)
+  Administrador: '#141313', // Negro Wohrx (Estructura, Legal y Dirección)
 };
 
 export default function App() {
@@ -261,7 +261,7 @@ export default function App() {
       id: `proj-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       name: trimmed,
       area: area,
-      color: AREA_COLORS[area] || '#6366F1',
+      color: AREA_COLORS[area] || '#003F9B',
       budgetHours: 80,
       status: 'active',
       description: `Iniciativa de ${area}`,
