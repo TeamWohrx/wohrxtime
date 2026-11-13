@@ -2,6 +2,7 @@ import React from 'react';
 import { Project, TimeEntry, User } from '../../types';
 import { formatDateSpanish, formatDurationHuman, minutesToDecimalHours } from '../../utils/timeUtils';
 import { Printer, X, FileText, CheckCircle2 } from 'lucide-react';
+import { WohrxLogo } from '../WohrxBrandLogo';
 
 interface PrintReportModalProps {
   isOpen: boolean;
@@ -65,15 +66,15 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
         {/* Modal Controls Bar (hidden during printing) */}
         <div className="no-print flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+            <FileText className="w-5 h-5 text-[#003F9B] dark:text-[#60A5FA]" />
+            <h3 className="font-bold text-slate-900 dark:text-slate-100">
               Vista Previa de Informe de Horas y Productividad
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#003F9B] hover:bg-[#00327D] rounded-lg transition-all cursor-pointer shadow-sm active:scale-[0.98]"
             >
               <Printer className="w-4 h-4" />
               Imprimir o Guardar como PDF
@@ -91,21 +92,20 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
         {/* Printable Paper Canvas */}
         <div className="p-8 sm:p-12 text-slate-900 print:text-black print:p-0">
           {/* Header */}
-          <div className="flex justify-between items-start border-b border-slate-200 pb-6 mb-6">
+          <div className="flex justify-between items-start border-b-2 border-[#003F9B] pb-6 mb-6">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-                  W
-                </div>
-                <span className="text-2xl font-bold tracking-tight text-slate-950">Wohrxtime</span>
+              <div className="mb-2">
+                <WohrxLogo size="lg" variant="blue" showSubtitle />
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Reporte de Horas Trabajadas y Control de Gestión Interna
+              <p className="text-xs text-slate-500 font-medium">
+                Wohrx Group | Buenos Aires, Argentina. Documento Oficial 2026
               </p>
-              <p className="text-xs text-slate-500">Documento ID: WX-HORAS-{Date.now().toString().slice(-6)}</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Reporte de Horas Trabajadas y Control de Gestión Interna • ID: WX-HORAS-{Date.now().toString().slice(-6)}
+              </p>
             </div>
             <div className="text-right">
-              <span className="inline-block px-3 py-1 bg-slate-100 text-slate-800 text-xs font-semibold rounded-md uppercase tracking-wider mb-2">
+              <span className="inline-block px-3 py-1 bg-[#003F9B]/10 text-[#003F9B] text-xs font-bold rounded-md uppercase tracking-wider mb-2">
                 Planilla Validada
               </span>
               <p className="text-sm font-semibold text-slate-900">Período: {dateRangeLabel}</p>
@@ -122,7 +122,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                 Generado por
               </span>
               <p className="text-base font-bold text-slate-900">{currentUser.name}</p>
-              <p className="text-xs text-indigo-600 font-semibold mt-0.5">Área: {currentUser.area}</p>
+              <p className="text-xs text-[#003F9B] font-semibold mt-0.5">Área: {currentUser.area}</p>
             </div>
             <div className="text-right">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
@@ -145,7 +145,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
             </div>
             <div className="p-4 border border-slate-200 rounded-lg bg-white">
               <p className="text-xs text-slate-500 uppercase tracking-wider">Bloques de Trabajo</p>
-              <p className="text-2xl font-bold font-mono text-indigo-600 mt-1">{entries.length}</p>
+              <p className="text-2xl font-bold font-mono text-[#003F9B] mt-1">{entries.length}</p>
             </div>
             <div className="p-4 border border-slate-200 rounded-lg bg-white">
               <p className="text-xs text-slate-500 uppercase tracking-wider">Proyectos con Actividad</p>
@@ -263,7 +263,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                   <td colSpan={5} className="py-3 px-3 text-right uppercase">
                     Total Tiempo Acumulado:
                   </td>
-                  <td className="py-3 px-3 text-right font-mono text-sm text-indigo-700">
+                  <td className="py-3 px-3 text-right font-mono text-sm text-[#003F9B] font-bold">
                     <div>{formatDurationHuman(totalMinutes)}</div>
                     <div className="text-xs text-slate-500 font-normal">({totalHours}h)</div>
                   </td>
