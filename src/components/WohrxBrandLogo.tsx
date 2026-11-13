@@ -60,84 +60,22 @@ export const WohrxLogo: React.FC<WohrxLogoProps> = ({
   className = '',
   size = 'md',
 }) => {
-  const textColor =
-    variant === 'white'
-      ? '#FFFAF8'
-      : variant === 'dark'
-      ? '#141313'
-      : '#003F9B';
-
-  const accentColor =
-    variant === 'gradient' ? 'url(#wohrx-grad)' : variant === 'white' ? '#FFFAF8' : '#003F9B';
-
   const heights = {
-    sm: 'h-6',
-    md: 'h-8',
-    lg: 'h-10',
-    xl: 'h-12',
+    sm: 'h-5',
+    md: 'h-7',
+    lg: 'h-9',
+    xl: 'h-11',
   };
 
   return (
     <div className={`flex items-center gap-2 select-none ${className}`}>
-      <svg
-        viewBox="0 0 240 54"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={`${heights[size]} w-auto`}
-      >
-        <defs>
-          <linearGradient id="wohrx-grad" x1="0" y1="0" x2="240" y2="54" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#003F9B" />
-            <stop offset="55%" stopColor="#5E47DF" />
-            <stop offset="100%" stopColor="#FF3282" />
-          </linearGradient>
-        </defs>
-
-        {/* Text W O H R in bold geometric sans */}
-        <text
-          x="4"
-          y="42"
-          fontFamily="Roboto, Montserrat, sans-serif"
-          fontWeight="900"
-          fontSize="46"
-          letterSpacing="0.04em"
-          fill={variant === 'gradient' ? 'url(#wohrx-grad)' : textColor}
-        >
-          WOHR
-        </text>
-
-        {/* Stylized X with rising arrow ↗ */}
-        <g transform="translate(182, 0)">
-          {/* Main ascending diagonal with arrow */}
-          <path
-            d="M6 46L36 16"
-            stroke={accentColor}
-            strokeWidth="9"
-            strokeLinecap="square"
-          />
-          {/* Arrow head */}
-          <path
-            d="M24 8H45V29"
-            stroke={accentColor}
-            strokeWidth="9"
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-          />
-          {/* Crossing stroke segments */}
-          <path
-            d="M9 13L20 24"
-            stroke={accentColor}
-            strokeWidth="9"
-            strokeLinecap="square"
-          />
-          <path
-            d="M32 36L43 47"
-            stroke={accentColor}
-            strokeWidth="9"
-            strokeLinecap="square"
-          />
-        </g>
-      </svg>
+      <img
+        src="/assets/aistudio/Refresh-Logo_Wohrx_69795bd4.png"
+        alt="Wohrx"
+        className={`${heights[size]} w-auto object-contain ${
+          variant === 'white' ? 'brightness-0 invert' : ''
+        }`}
+      />
 
       {showSubtitle && (
         <span
