@@ -81,49 +81,51 @@ export const INITIAL_USERS: User[] = [
   },
 ];
 
-// Default projects: The 4 Areas are primary projects themselves, plus common custom initiatives
+// Default projects aligned with Wohrx Brandbook V6:
+// Azul #003F9B (Data Analytics & Tech), Magenta #FF3282 (Marketing & Innovación),
+// Violeta #5E47DF (RRHH & Coaching), Negro #141313 (Administración & Liderazgo)
 export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'proj-sistemas',
-    name: 'Sistemas',
+    name: 'Sistemas & Data Analytics',
     area: 'Sistemas',
-    color: '#3B82F6', // Blue
+    color: '#003F9B', // Wohrx Azul (Ancla institucional & rigor analítico)
     budgetHours: 160,
     status: 'active',
-    description: 'Tareas generales e iniciativas del área de Sistemas.',
+    description: 'Gestión de datos, infraestructura, seguridad e iniciativas de Sistemas.',
   },
   {
     id: 'proj-marketing',
-    name: 'Marketing',
+    name: 'Marketing & Innovación',
     area: 'Marketing',
-    color: '#F59E0B', // Amber
+    color: '#FF3282', // Wohrx Magenta (Energía, dinamismo y creatividad)
     budgetHours: 160,
     status: 'active',
-    description: 'Campañas, contenido, pauta y gestión del área de Marketing.',
+    description: 'Campañas de comunicación, pauta digital, branding y transformación.',
   },
   {
     id: 'proj-rrhh',
-    name: 'RRHH',
+    name: 'Recursos Humanos & Coaching',
     area: 'RRHH',
-    color: '#10B981', // Emerald
+    color: '#5E47DF', // Wohrx Violeta (Estrategia, desarrollo humano y liderazgo)
     budgetHours: 160,
     status: 'active',
-    description: 'Gestión de personal, clima, selección y capacitaciones en RRHH.',
+    description: 'Gestión del talento, cultura corporativa, coaching y clima laboral.',
   },
   {
     id: 'proj-administracion',
-    name: 'Administración',
+    name: 'Administración & Legal',
     area: 'Administrador',
-    color: '#8B5CF6', // Purple
+    color: '#141313', // Wohrx Negro (Estructura, marco normativo y orden)
     budgetHours: 120,
     status: 'active',
-    description: 'Planificación, auditorías, control de gestión y aprobaciones.',
+    description: 'Planificación estratégica, marco legal, auditorías y control de gestión.',
   },
   {
     id: 'proj-dev-software',
     name: 'Desarrollo Software & Plataforma',
     area: 'Sistemas',
-    color: '#06B6D4', // Cyan
+    color: '#003F9B', // Wohrx Azul
     budgetHours: 80,
     status: 'active',
     description: 'Mantenimiento del código, nuevas features e integraciones.',
@@ -132,7 +134,7 @@ export const INITIAL_PROJECTS: Project[] = [
     id: 'proj-campanas',
     name: 'Campañas & Pauta Digital',
     area: 'Marketing',
-    color: '#EC4899', // Pink
+    color: '#FF3282', // Wohrx Magenta
     budgetHours: 80,
     status: 'active',
     description: 'Estrategias de performance, anuncios y métricas.',
