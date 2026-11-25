@@ -667,7 +667,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-full flex flex-col bg-[#F5F7FB] dark:bg-[#141313] text-[#141313] dark:text-[#FFFAF8] transition-colors">
       {/* Top Bar Navigation */}
       <Navbar
         currentTab={currentTab}
