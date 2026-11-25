@@ -11,19 +11,19 @@ import {
   minutesToDecimalHours,
 } from '../../utils/timeUtils';
 import { PrintReportModal } from './PrintReportModal';
+import { getAreaStyle } from '../../utils/areaStyles';
 import {
   BarChart3,
   PieChart,
   FileSpreadsheet,
   FileText,
   Download,
-  Filter,
-  Calendar,
   Search,
   Clock,
   Briefcase,
   Users,
   Activity,
+  RotateCcw,
 } from 'lucide-react';
 
 interface ReportsViewProps {
@@ -208,7 +208,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Header & Export Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold tracking-tight text-[#141313] dark:text-[#FFFAF8]">
             Informes de Productividad y Horas
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -220,7 +220,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => exportEntriesToCSV(filteredEntries, projects)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg hover:bg-[#F8FAFD] dark:hover:bg-[#222128] transition-colors shadow-2xs cursor-pointer"
             title="Descargar archivo CSV"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -229,7 +229,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           <button
             onClick={() => exportEntriesToExcel(filteredEntries, projects, `Reporte Productividad ${dateRangeLabel}`)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg hover:bg-[#F8FAFD] dark:hover:bg-[#222128] transition-colors shadow-2xs cursor-pointer"
             title="Descargar archivo Excel .xls"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
@@ -248,7 +248,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       </div>
 
       {/* Filter Controls Panel */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-xs space-y-3">
+      <div className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-4 shadow-xs space-y-3">
         {/* Date presets row */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -278,7 +278,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
                   preset === key
                     ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-blue-300 border border-[#003F9B]/30 font-semibold'
-                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent'
+                    : 'bg-[#F8FAFD] dark:bg-[#222128] text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-[#FFFAF8] border border-transparent'
                 }`}
               >
                 {label}
@@ -286,7 +286,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             ))}
           </div>
 
-          <div className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-200/60 dark:border-slate-800">
+          <div className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400 bg-[#F8FAFD] dark:bg-[#222128] px-2.5 py-1 rounded-md border border-[#E3E8F2] dark:border-white/10">
             {preset === 'all'
               ? 'Historial Completo'
               : `Fechas: ${activeDateRange.start} al ${activeDateRange.end}`}
@@ -295,9 +295,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
         {/* Boundary clarification when selecting "Este mes" on the first days of November */}
         {preset === 'this_month' && (
-          <div className="text-[11px] text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-950/30 px-3 py-2 rounded-lg border border-amber-200/70 dark:border-amber-900/50 flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50/80 dark:bg-amber-950/30 px-3 py-2 rounded-lg border border-amber-200/70 dark:border-amber-900/50 flex flex-wrap items-center justify-between gap-2">
             <span>
-              ℹ️ Filtro actual de <strong>Noviembre</strong> ({activeDateRange.start} a {activeDateRange.end}). Si buscas tareas del <strong>31 de Octubre</strong> (fin de semana anterior), selecciona <strong>"Esta semana"</strong> o <strong>"Todo el tiempo"</strong> para ver ambos días.
+              Filtro actual de <strong>Noviembre</strong> ({activeDateRange.start} a {activeDateRange.end}). Si buscas tareas del <strong>31 de Octubre</strong> (fin de semana anterior), selecciona <strong>"Esta semana"</strong> o <strong>"Todo el tiempo"</strong> para ver ambos días.
             </span>
             <button
               onClick={() => {
@@ -308,39 +308,39 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               }}
               className="text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline font-semibold cursor-pointer"
             >
-              Ver Esta semana (26 Oct - 1 Nov) →
+              Ver Esta semana →
             </button>
           </div>
         )}
 
         {/* Custom date range inputs */}
         {preset === 'custom' && (
-          <div className="flex items-center gap-3 pt-2 text-xs">
+          <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
             <span className="text-slate-500 font-medium">Desde:</span>
             <input
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="px-2.5 py-1.5 rounded-lg border border-[#E3E8F2] dark:border-white/10 bg-[#F8FAFD] dark:bg-[#222128] text-[#141313] dark:text-[#FFFAF8]"
             />
             <span className="text-slate-500 font-medium">Hasta:</span>
             <input
               type="date"
               value={customEnd}
               onChange={(e) => setCustomEnd(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="px-2.5 py-1.5 rounded-lg border border-[#E3E8F2] dark:border-white/10 bg-[#F8FAFD] dark:bg-[#222128] text-[#141313] dark:text-[#FFFAF8]"
             />
           </div>
         )}
 
         {/* Secondary filters dropdowns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#E3E8F2] dark:border-white/10 text-xs">
           <div>
-            <label className="block text-slate-500 mb-1 font-medium">Filtrar por Área</label>
+            <label className="block text-slate-500 dark:text-slate-400 mb-1 font-medium">Filtrar por Área</label>
             <select
               value={filterArea}
               onChange={(e) => setFilterArea(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E3E8F2] dark:border-white/10 bg-[#F8FAFD] dark:bg-[#222128] text-[#141313] dark:text-[#FFFAF8]"
             >
               <option value="all">Todas las áreas</option>
               <option value="Sistemas">Sistemas</option>
@@ -351,11 +351,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-slate-500 mb-1 font-medium">Colaborador ({allUsers.length})</label>
+            <label className="block text-slate-500 dark:text-slate-400 mb-1 font-medium">Colaborador ({allUsers.length})</label>
             <select
               value={filterUserId}
               onChange={(e) => setFilterUserId(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E3E8F2] dark:border-white/10 bg-[#F8FAFD] dark:bg-[#222128] text-[#141313] dark:text-[#FFFAF8]"
             >
               <option value="all">Todo el equipo</option>
               {allUsers.map((u) => (
@@ -367,11 +367,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-slate-500 mb-1 font-medium">Proyecto</label>
+            <label className="block text-slate-500 dark:text-slate-400 mb-1 font-medium">Proyecto</label>
             <select
               value={filterProjectId}
               onChange={(e) => setFilterProjectId(e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E3E8F2] dark:border-white/10 bg-[#F8FAFD] dark:bg-[#222128] text-[#141313] dark:text-[#FFFAF8]"
             >
               <option value="all">Todos los proyectos</option>
               {projects.map((p) => (
@@ -386,109 +386,151 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
       {/* KPI Cards Grid (Zero billing, pure time & productivity) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Horas Totales</span>
-            <Clock className="w-4 h-4 text-[#003F9B]" />
+            <div className="w-8 h-8 rounded-lg bg-[#003F9B]/10 dark:bg-[#003F9B]/25 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
+            </div>
           </div>
-          <p className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
+          <p className="text-3xl font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8]">
             {formatDurationHuman(totalMinutes)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono tabular-nums">
             {totalHours}h decimales en {filteredEntries.length} bloques de trabajo
           </p>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Promedio Diario</span>
-            <Activity className="w-4 h-4 text-emerald-500" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <Activity className="w-4 h-4 text-emerald-500" />
+            </div>
           </div>
-          <p className="text-3xl font-bold font-mono text-[#003F9B] dark:text-blue-400">
+          <p className="text-3xl font-bold font-mono tabular-nums text-[#003F9B] dark:text-blue-400">
             {averageHoursPerDay}h
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Calculado en {uniqueDates.length} días con registros
           </p>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Colaboradores Activos</span>
-            <Users className="w-4 h-4 text-blue-500" />
+            <div className="w-8 h-8 rounded-lg bg-[#FF3282]/10 dark:bg-[#FF3282]/20 flex items-center justify-center shrink-0">
+              <Users className="w-4 h-4 text-[#FF3282]" />
+            </div>
           </div>
-          <p className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
+          <p className="text-3xl font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8]">
             {activeMembersCount} / {allUsers.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Integrantes de Marketing, RRHH y Sistemas
           </p>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Proyectos con Avance</span>
-            <Briefcase className="w-4 h-4 text-violet-500" />
+            <div className="w-8 h-8 rounded-lg bg-[#5E47DF]/10 dark:bg-[#5E47DF]/25 flex items-center justify-center shrink-0">
+              <Briefcase className="w-4 h-4 text-[#5E47DF] dark:text-[#A78BFA]" />
+            </div>
           </div>
-          <p className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
+          <p className="text-3xl font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8]">
             {projectStats.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             De {projects.length} iniciativas activas
           </p>
         </div>
       </div>
 
       {/* Area Distribution Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        {areaStats.map((item) => (
-          <div
-            key={item.area}
-            className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs"
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase">
-                {item.area}
-              </span>
-              <span className="text-xs font-mono text-slate-500">
-                {item.percentage}%
-              </span>
-            </div>
-            <p className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
-              {formatDurationHuman(item.minutes)}
-            </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              {item.hours}h · {item.count} tareas registradas
-            </p>
-          </div>
-        ))}
-      </div>
+      {areaStats.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {areaStats.map((item) => {
+            const areaStyle = getAreaStyle(item.area);
+            return (
+              <div
+                key={item.area}
+                className="relative overflow-hidden p-4 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs"
+              >
+                <div className={`absolute top-0 left-0 right-0 h-1 ${areaStyle.barClass}`} />
+                <div className="flex items-center justify-between mb-1 pt-0.5">
+                  <span className={`text-xs font-bold uppercase tracking-wide ${areaStyle.labelClass}`}>
+                    {item.area}
+                  </span>
+                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                    {item.percentage}%
+                  </span>
+                </div>
+                <p className="text-2xl font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8]">
+                  {formatDurationHuman(item.minutes)}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5 font-mono tabular-nums">
+                  {item.hours}h · {item.count} tareas registradas
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Visual Charts: Bar Chart & Donut Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Distribution Bar Chart (2 columns) */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h3 className="font-bold text-sm text-[#141313] dark:text-[#FFFAF8] flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-[#003F9B]" />
                 Evolución de Horas Trabajadas por Día
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Carga horaria total registrada en el período
               </p>
             </div>
           </div>
 
           {dailyStats.length === 0 ? (
-            <div className="h-56 flex items-center justify-center text-slate-400 text-xs">
-              No hay registros diarios para graficar en este rango
+            <div className="h-56 flex flex-col items-center justify-center text-center px-4">
+              <div className="w-10 h-10 rounded-full bg-[#F8FAFD] dark:bg-[#222128] flex items-center justify-center mb-2">
+                <BarChart3 className="w-5 h-5 text-slate-400" />
+              </div>
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                No hay registros diarios para graficar en este rango
+              </p>
+              {(filterArea !== 'all' || filterUserId !== 'all' || filterProjectId !== 'all' || preset !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreset('all');
+                    setFilterArea('all');
+                    setFilterUserId('all');
+                    setFilterProjectId('all');
+                    setTableSearch('');
+                  }}
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Ver historial completo
+                </button>
+              )}
             </div>
           ) : (
-            <div className="h-64 flex flex-col justify-end pt-4">
-              <div className="flex-1 flex items-end gap-2 sm:gap-3 px-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="h-64 flex flex-col justify-end pt-4 relative">
+              {/* Subtle horizontal dashed gridlines */}
+              <div className="absolute inset-x-2 top-8 bottom-8 flex flex-col justify-between pointer-events-none">
+                <div className="border-b border-dashed border-[#E3E8F2] dark:border-white/10 w-full" />
+                <div className="border-b border-dashed border-[#E3E8F2] dark:border-white/10 w-full" />
+                <div className="border-b border-dashed border-[#E3E8F2] dark:border-white/10 w-full" />
+              </div>
+
+              <div className="flex-1 flex items-end gap-2 sm:gap-3 px-2 border-b border-[#E3E8F2] dark:border-white/10 relative z-10">
                 {dailyStats.map((stat, idx) => {
-                  const dayHeight = (stat.hours / maxDayHours) * 100;
+                  const dayHeight = Math.max(4, (stat.hours / maxDayHours) * 100);
 
                   return (
                     <div
@@ -501,7 +543,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       {hoveredBarIndex === idx && (
                         <div className="absolute -top-14 z-20 bg-[#141313] text-white text-[11px] py-1.5 px-2.5 rounded-lg shadow-lg whitespace-nowrap pointer-events-none border border-[#FF3282]/30">
                           <p className="font-semibold">{formatDateSpanish(stat.dateStr)}</p>
-                          <p className="text-[#FF3282] font-mono font-bold">Total: {stat.hours}h</p>
+                          <p className="text-[#FF3282] font-mono tabular-nums font-bold">Total: {stat.hours}h</p>
                           <p className="text-slate-300 text-[10px]">{stat.count} tareas</p>
                         </div>
                       )}
@@ -509,13 +551,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       {/* Bar */}
                       <div className="w-full max-w-[36px] flex flex-col items-center justify-end h-44">
                         <div
-                          className="w-full bg-[#003F9B] rounded-t-xs transition-all duration-200 group-hover:bg-[#FF3282]"
+                          className="w-full bg-gradient-to-t from-[#003F9B] to-[#5E47DF] rounded-t-sm transition-all duration-200 group-hover:from-[#FF3282] group-hover:to-[#FF3282]"
                           style={{ height: `${dayHeight}%` }}
                         />
                       </div>
 
                       {/* X-axis label */}
-                      <span className="text-[10px] font-mono text-slate-500 mt-2 truncate w-full text-center">
+                      <span className="text-[10px] font-mono tabular-nums text-slate-500 mt-2 truncate w-full text-center">
                         {formatDateSpanish(stat.dateStr).slice(0, 3)} {stat.dateStr.slice(8, 10)}
                       </span>
                     </div>
@@ -527,19 +569,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Donut Chart: Hours by Project (1 column) */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-5 shadow-xs flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-1">
-              <PieChart className="w-4 h-4 text-violet-600" />
+            <h3 className="font-bold text-sm text-[#141313] dark:text-[#FFFAF8] flex items-center gap-2 mb-1">
+              <PieChart className="w-4 h-4 text-[#5E47DF]" />
               Distribución por Proyecto
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               Porcentaje de dedicación horaria en el período
             </p>
 
             {projectStats.length === 0 ? (
-              <div className="h-44 flex items-center justify-center text-slate-400 text-xs">
-                Sin datos de proyecto
+              <div className="h-44 flex flex-col items-center justify-center text-slate-400 text-xs text-center">
+                <PieChart className="w-6 h-6 text-slate-300 dark:text-slate-600 mb-1.5" />
+                <span>Sin datos de proyecto en este rango</span>
               </div>
             ) : (
               <div className="relative flex justify-center items-center py-2">
@@ -552,7 +595,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     fill="transparent"
                     stroke="currentColor"
                     strokeWidth={donutStrokeWidth}
-                    className="text-slate-100 dark:text-slate-800"
+                    className="text-[#EEF2F9] dark:text-white/10"
                   />
                   {/* Slices */}
                   {projectStats.map((item) => {
@@ -579,17 +622,19 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
                 {/* Donut center label */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 text-center px-1">
+                  <span className="text-xl font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8] text-center px-1">
                     {formatDurationHuman(totalMinutes)}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Total ({totalHours}h)</span>
+                  <span className="text-[10px] text-slate-400 font-medium font-mono tabular-nums">
+                    Total ({totalHours}h)
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Project legend items */}
-          <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <div className="space-y-2 pt-4 border-t border-[#E3E8F2] dark:border-white/10 text-xs">
             {projectStats.slice(0, 5).map((item) => (
               <div key={item.project.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2 truncate pr-2">
@@ -601,8 +646,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     {item.project.name}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 font-mono shrink-0">
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                <div className="flex items-center gap-2 font-mono tabular-nums shrink-0">
+                  <span className="font-semibold text-[#141313] dark:text-[#FFFAF8]">
                     {formatDurationHuman(item.minutes)}
                   </span>
                   <span className="text-slate-400 text-[11px]">({item.percentage}%)</span>
@@ -614,13 +659,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       </div>
 
       {/* Itemized Audit Log Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs overflow-hidden">
+        <div className="p-4 bg-[#F8FAFD] dark:bg-[#222128] border-b border-[#E3E8F2] dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+            <h3 className="font-bold text-sm text-[#141313] dark:text-[#FFFAF8]">
               Registro Detallado de Horas ({filteredEntries.length} entradas)
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Desglose de cada bloque de tiempo registrado para el filtro seleccionado
             </p>
           </div>
@@ -632,7 +677,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               placeholder="Buscar tarea, colaborador o proyecto..."
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20"
             />
           </div>
         </div>
@@ -640,7 +685,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/40 text-slate-500 border-b border-slate-200 dark:border-slate-800">
+              <tr className="bg-[#F8FAFD]/70 dark:bg-[#222128]/60 text-slate-500 dark:text-slate-400 border-b border-[#E3E8F2] dark:border-white/10">
                 <th className="py-2.5 px-4 font-semibold">Fecha</th>
                 <th className="py-2.5 px-4 font-semibold">Colaborador</th>
                 <th className="py-2.5 px-4 font-semibold">Área</th>
@@ -650,31 +695,48 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <th className="py-2.5 px-4 font-semibold text-right">Tiempo Dedicado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-[#E3E8F2]/70 dark:divide-white/5">
               {filteredEntries.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-500">
-                    No se encontraron registros de tiempo con los filtros aplicados.
+                  <td colSpan={7} className="py-10 text-center text-slate-500 dark:text-slate-400">
+                    <p className="font-medium mb-2">
+                      No se encontraron registros de tiempo con los filtros aplicados.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreset('all');
+                        setFilterArea('all');
+                        setFilterUserId('all');
+                        setFilterProjectId('all');
+                        setTableSearch('');
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Restablecer filtros
+                    </button>
                   </td>
                 </tr>
               ) : (
                 filteredEntries.map((entry) => {
                   const proj = projects.find((p) => p.id === entry.projectId);
                   const hours = minutesToDecimalHours(entry.durationMinutes);
+                  const areaStyle = getAreaStyle(entry.userArea);
 
                   return (
                     <tr
                       key={entry.id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                      className="hover:bg-[#F8FAFD] dark:hover:bg-white/[0.03] transition-colors"
                     >
-                      <td className="py-2.5 px-4 font-mono text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                      <td className="py-2.5 px-4 font-mono tabular-nums text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {formatDateSpanish(entry.date)}
                       </td>
-                      <td className="py-2.5 px-4 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                      <td className="py-2.5 px-4 font-medium text-[#141313] dark:text-[#FFFAF8] whitespace-nowrap">
                         {entry.userName}
                       </td>
                       <td className="py-2.5 px-4 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <span className={`text-[11px] font-semibold ${areaStyle.labelClass}`}>
                           {entry.userArea}
                         </span>
                       </td>
@@ -684,7 +746,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                             className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: proj?.color || '#94a3b8' }}
                           />
-                          <span className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[160px]">
+                          <span className="font-semibold text-[#141313] dark:text-[#FFFAF8] truncate max-w-[160px]">
                             {proj?.name || entry.projectName || 'General'}
                           </span>
                         </div>
@@ -692,18 +754,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       <td className="py-2.5 px-4 text-slate-700 dark:text-slate-300 max-w-sm truncate">
                         {entry.description || '-'}
                       </td>
-                      <td className="py-2.5 px-4 text-center font-mono text-slate-500 whitespace-nowrap">
+                      <td className="py-2.5 px-4 text-center font-mono tabular-nums text-slate-500 whitespace-nowrap">
                         {entry.startTime && entry.endTime ? `${entry.startTime} - ${entry.endTime}` : '-'}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono">
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums">
                         <div className="flex flex-col items-end">
-                          <span className="font-bold text-slate-900 dark:text-slate-100">
+                          <span className="font-bold text-[#141313] dark:text-[#FFFAF8]">
                             {formatDurationHuman(entry.durationMinutes, {
                               seconds: entry.durationSeconds,
                               showSeconds: Boolean(entry.durationSeconds && entry.durationSeconds % 60 > 0),
                             })}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-400 font-mono tabular-nums">
                             ({hours}h)
                           </span>
                         </div>
@@ -714,11 +776,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               )}
             </tbody>
             <tfoot>
-              <tr className="bg-slate-50 dark:bg-slate-800/60 border-t-2 border-slate-200 dark:border-slate-800 font-bold">
+              <tr className="bg-[#F8FAFD] dark:bg-[#222128] border-t-2 border-[#E3E8F2] dark:border-white/10 font-bold">
                 <td colSpan={6} className="py-3 px-4 text-right uppercase text-slate-600 dark:text-slate-400">
                   Total Tiempo Acumulado:
                 </td>
-                <td className="py-3 px-4 text-right font-mono text-[#003F9B] dark:text-blue-400 text-sm">
+                <td className="py-3 px-4 text-right font-mono tabular-nums text-[#003F9B] dark:text-blue-400 text-sm">
                   <div className="flex flex-col items-end">
                     <span className="font-bold text-sm">
                       {formatDurationHuman(totalMinutes)}
