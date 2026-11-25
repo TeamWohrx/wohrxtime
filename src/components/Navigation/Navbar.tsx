@@ -2,7 +2,8 @@ import React from 'react';
 import { ActiveTimer, DepartmentArea, User } from '../../types';
 import { formatSecondsToDigital } from '../../utils/timeUtils';
 import { Clock, Moon, Sun, ChevronDown, Check, Shield, Cloud, CloudOff, LogOut } from 'lucide-react';
-import { WohrxLogo, WohrxIsotype } from '../WohrxBrandLogo';
+import { WohrxLogo } from '../WohrxBrandLogo';
+import { getAreaStyle, getInitials } from '../../utils/areaStyles';
 
 interface NavbarProps {
   currentTab: 'tracker' | 'timesheets' | 'reports' | 'projects';
@@ -71,30 +72,30 @@ export const Navbar: React.FC<NavbarProps> = ({
   const areas: DepartmentArea[] = ['Sistemas', 'Marketing', 'RRHH', 'Administrador'];
 
   return (
-    <header className="no-print h-16 border-b border-[#8F9193]/20 dark:border-white/10 bg-[#FFFAF8] dark:bg-[#141313] sticky top-0 z-30 px-4 sm:px-8 relative shadow-xs">
+    <header className="no-print h-16 border-b border-[#E3E8F2] dark:border-white/10 bg-white/95 dark:bg-[#141313]/95 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 relative shadow-2xs">
       {/* Brand Identity Accent Bar (Wohrx V6 Gradient: Azul -> Violeta -> Magenta) */}
       <div className="h-1 bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282] w-full absolute top-0 left-0" />
 
-      <div className="h-full max-w-7xl mx-auto flex items-center justify-between gap-8 pt-0.5">
+      <div className="h-full max-w-7xl mx-auto flex items-center justify-between gap-6 lg:gap-8 pt-0.5">
         {/* Zone 1: Brand mark - Wohrx Official Logo */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => onSelectTab('tracker')}
-            className="flex items-center gap-2 text-left group cursor-pointer focus:outline-none"
+            className="flex items-center gap-2 text-left group cursor-pointer focus:outline-none whitespace-nowrap shrink-0"
             title="Wohrx Time - Control de Tiempo & Productividad"
           >
             <WohrxLogo variant={isDarkMode ? 'white' : 'blue'} showSubtitle size="md" />
           </button>
         </div>
 
-        {/* Zone 2: Navigation Links (Roboto / Montserrat typography) */}
-        <nav className="hidden md:flex items-center gap-1 sm:gap-2">
+        {/* Zone 2: Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1 sm:gap-1.5">
           <button
             onClick={() => onSelectTab('tracker')}
-            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 text-sm rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               currentTab === 'tracker'
-                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-slate-800/50 font-medium'
+                ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#003F9B] dark:hover:text-[#FFFAF8] hover:bg-[#003F9B]/5 dark:hover:bg-white/5 font-medium'
             }`}
           >
             Temporizador
@@ -182,11 +183,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors cursor-pointer"
+              className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-lg border border-[#E3E8F2] dark:border-white/12 bg-white dark:bg-[#1B1A20] hover:bg-[#F5F7FB] dark:hover:bg-[#222128] text-left transition-colors cursor-pointer"
               aria-label="Perfil y área activa"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+                <p className="text-xs font-semibold text-[#141313] dark:text-[#FFFAF8] leading-tight whitespace-nowrap">
                   {currentUser.name}
                 </p>
                 <div className="flex items-center justify-end gap-1 mt-0.5">
@@ -198,43 +199,43 @@ export const Navbar: React.FC<NavbarProps> = ({
                     {currentUser.area}
                   </span>
                   {currentUser.role === 'admin' && (
-                    <Shield className="w-3 h-3 text-purple-600 dark:text-purple-400 inline" />
+                    <Shield className="w-3 h-3 text-[#5E47DF] dark:text-[#A78BFA] inline" />
                   )}
                 </div>
               </div>
-              <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold flex items-center justify-center shrink-0">
-                {currentUser.name
-                  .split(' ')
-                  .filter(Boolean)
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
+              <div
+                className={`w-7 h-7 rounded-full border text-[11px] font-bold flex items-center justify-center shrink-0 ${
+                  getAreaStyle(currentUser.area).avatarClass
+                }`}
+              >
+                {getInitials(currentUser.name)}
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             {/* Dropdown Menu */}
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 text-xs max-h-[80vh] overflow-y-auto">
-                <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">
+              <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/12 shadow-xl py-2 z-50 text-xs max-h-[80vh] overflow-y-auto">
+                <div className="px-3.5 py-2.5 border-b border-[#E3E8F2] dark:border-white/10">
+                  <p className="font-semibold text-[#141313] dark:text-[#FFFAF8]">
                     Cambiar Perfil ({allUsers.length} integrantes)
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Selecciona para ver el temporizador o planilla de cada colaborador
                   </p>
                 </div>
 
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="divide-y divide-[#E3E8F2]/80 dark:divide-white/8">
                   {areas.map((areaName) => {
                     const areaMembers = allUsers.filter((u) => u.area === areaName);
                     if (areaMembers.length === 0) return null;
+                    const areaStyle = getAreaStyle(areaName);
 
                     return (
-                      <div key={areaName} className="py-1">
-                        <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                          {areaName}
+                      <div key={areaName} className="py-1.5">
+                        <div className="px-3.5 py-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          <span className={`w-1.5 h-1.5 rounded-full ${areaStyle.dotClass}`} />
+                          <span>{areaName}</span>
                         </div>
                         {areaMembers.map((u) => (
                           <button
@@ -243,20 +244,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                               onSelectUser(u);
                               setShowUserMenu(false);
                             }}
-                            className="w-full flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center justify-between px-3.5 py-2 hover:bg-[#F5F7FB] dark:hover:bg-[#222128] transition-colors cursor-pointer text-left"
                           >
                             <div className="flex items-center gap-2.5 truncate">
-                              <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700">
-                                {u.name
-                                  .split(' ')
-                                  .filter(Boolean)
-                                  .map((n) => n[0])
-                                  .join('')
-                                  .slice(0, 2)
-                                  .toUpperCase()}
+                              <div
+                                className={`w-6 h-6 rounded-full border text-[10px] font-bold flex items-center justify-center shrink-0 ${areaStyle.avatarClass}`}
+                              >
+                                {getInitials(u.name)}
                               </div>
                               <div className="truncate">
-                                <p className="font-medium text-slate-800 dark:text-slate-200 truncate">
+                                <p className="font-medium text-[#141313] dark:text-[#FFFAF8] truncate">
                                   {u.name}
                                 </p>
                               </div>
@@ -277,10 +274,10 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile nav tabs bar */}
-      <div className="md:hidden flex items-center justify-around py-1 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs">
+      <div className="md:hidden flex items-center justify-around py-1 border-t border-[#E3E8F2] dark:border-white/10 bg-white dark:bg-[#141313] text-xs">
         <button
           onClick={() => onSelectTab('tracker')}
-          className={`py-1.5 px-2 font-medium ${
+          className={`py-1.5 px-2 font-medium whitespace-nowrap ${
             currentTab === 'tracker' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
@@ -288,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
         <button
           onClick={() => onSelectTab('timesheets')}
-          className={`py-1.5 px-2 font-medium ${
+          className={`py-1.5 px-2 font-medium whitespace-nowrap ${
             currentTab === 'timesheets' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
@@ -296,7 +293,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
         <button
           onClick={() => onSelectTab('reports')}
-          className={`py-1.5 px-2 font-medium ${
+          className={`py-1.5 px-2 font-medium whitespace-nowrap ${
             currentTab === 'reports' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
@@ -304,7 +301,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
         <button
           onClick={() => onSelectTab('projects')}
-          className={`py-1.5 px-2 font-medium ${
+          className={`py-1.5 px-2 font-medium whitespace-nowrap ${
             currentTab === 'projects' ? 'text-[#003F9B] dark:text-[#60A5FA] font-bold' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
