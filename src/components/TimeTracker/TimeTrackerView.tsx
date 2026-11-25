@@ -29,6 +29,7 @@ import {
   ChevronUp,
   User as UserIcon,
 } from 'lucide-react';
+import { getAreaStyle, getInitials } from '../../utils/areaStyles';
 
 interface TimeTrackerViewProps {
   timer: ActiveTimer;
@@ -296,7 +297,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
       {/* Top Banner / Mode Switch */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold tracking-tight text-[#141313] dark:text-[#FFFAF8]">
             Control de Tiempo
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -305,23 +306,23 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         </div>
 
         {/* Mode switcher tabs */}
-        <div className="flex items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-800 rounded-lg self-start sm:self-auto">
+        <div className="flex items-center gap-1 p-1 bg-[#E8ECF4] dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg self-start sm:self-auto">
           <button
             onClick={() => setActiveMode('timer')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer whitespace-nowrap ${
               activeMode === 'timer'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                ? 'bg-white dark:bg-[#272630] text-[#003F9B] dark:text-[#60A5FA] shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-[#FFFAF8]'
             }`}
           >
             Temporizador en Vivo
           </button>
           <button
             onClick={() => setActiveMode('manual')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer whitespace-nowrap ${
               activeMode === 'manual'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                ? 'bg-white dark:bg-[#272630] text-[#003F9B] dark:text-[#60A5FA] shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-[#FFFAF8]'
             }`}
           >
             Entrada Manual
@@ -329,168 +330,211 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         </div>
       </div>
 
-      {/* Main Tracker Card */}
+      {/* Main Tracker Card (Hero funcional) */}
       {activeMode === 'timer' ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-6 shadow-xs transition-colors space-y-4">
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-            {/* Task Description */}
-            <div className="flex-1">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                ¿En qué tarea estás trabajando ahora?
-              </label>
-              <input
-                type="text"
-                placeholder="Ej. Rediseño del banner de campaña, revisión de servidores, screening de candidatos..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={timer.isRunning}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
-              />
-            </div>
+        <div
+          className={`relative overflow-hidden bg-white dark:bg-[#1B1A20] rounded-xl transition-all ${
+            timer.isRunning
+              ? 'border border-[#003F9B]/35 dark:border-[#5E47DF]/55 shadow-lg shadow-[#003F9B]/8'
+              : 'border border-[#E3E8F2] dark:border-white/10 shadow-xs'
+          }`}
+        >
+          {/* Active Wohrx Gradient Top Strip when timer is running */}
+          <div
+            className={`h-1 w-full transition-opacity duration-200 ${
+              timer.isRunning
+                ? 'bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282] opacity-100'
+                : 'bg-[#E3E8F2] dark:bg-white/10 opacity-60'
+            }`}
+          />
 
-            {/* Project / Area input (Freeform text, datalist, and area buttons) */}
-            <div className="w-full lg:w-80">
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  Proyecto o Área
+          <div className="p-5 sm:p-6 space-y-4">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+              {/* Task Description */}
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                  ¿En qué tarea estás trabajando ahora?
                 </label>
-                <span className="text-[10px] text-slate-400">Escribe o elige un área</span>
+                <input
+                  type="text"
+                  placeholder="Ej. Rediseño del banner de campaña, revisión de servidores, screening de candidatos..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={timer.isRunning}
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B] disabled:opacity-75"
+                />
               </div>
-              <input
-                type="text"
-                list="projects-datalist"
-                placeholder={`Ej. ${currentUser.area}, o cualquier proyecto...`}
-                value={projectNameInput}
-                onChange={(e) => setProjectNameInput(e.target.value)}
-                disabled={timer.isRunning}
-                className="w-full px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
-              />
-              <datalist id="projects-datalist">
-                {allProjectNames.map((name) => (
-                  <option key={name} value={name} />
-                ))}
-              </datalist>
+
+              {/* Project / Area input (Freeform text, datalist, and area buttons) */}
+              <div className="w-full lg:w-72">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    Proyecto o Área
+                  </label>
+                  <span className="text-[11px] text-slate-400">Escribe o elige un área</span>
+                </div>
+                <input
+                  type="text"
+                  list="projects-datalist"
+                  placeholder={`Ej. ${currentUser.area}, o cualquier proyecto...`}
+                  value={projectNameInput}
+                  onChange={(e) => setProjectNameInput(e.target.value)}
+                  disabled={timer.isRunning}
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B] disabled:opacity-75"
+                />
+                <datalist id="projects-datalist">
+                  {allProjectNames.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
+              </div>
+
+              {/* Timer Display */}
+              <div className="flex items-center justify-between lg:justify-end gap-5 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#E3E8F2] dark:border-white/10">
+                <div className="text-left lg:text-right">
+                  <span
+                    className={`block text-3xl sm:text-4xl font-bold font-mono tabular-nums tracking-tight ${
+                      timer.isRunning
+                        ? timer.isPaused
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-[#003F9B] dark:text-[#93C5FD]'
+                        : 'text-[#141313] dark:text-[#FFFAF8]'
+                    }`}
+                  >
+                    {formatSecondsToDigital(timer.elapsedSeconds)}
+                  </span>
+                  <span
+                    className={`text-[11px] font-semibold block mt-0.5 ${
+                      timer.isRunning
+                        ? timer.isPaused
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-[#FF3282] dark:text-[#FF85B3]'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {timer.isRunning
+                      ? timer.isPaused
+                        ? 'En pausa'
+                        : 'Grabando tiempo'
+                      : 'Listo para iniciar'}
+                  </span>
+                </div>
+
+                {/* Action Controls */}
+                <div className="flex items-center gap-2">
+                  {!timer.isRunning ? (
+                    <button
+                      onClick={handleStart}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-[#003F9B] hover:bg-[#00327D] shadow-md shadow-[#003F9B]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
+                    >
+                      <Play className="w-4 h-4 fill-current" />
+                      <span>Iniciar</span>
+                    </button>
+                  ) : (
+                    <>
+                      {timer.isPaused ? (
+                        <button
+                          onClick={onResumeTimer}
+                          className="p-2.5 rounded-lg text-white bg-[#003F9B] hover:bg-[#00327D] shadow-sm transition-colors cursor-pointer"
+                          title="Reanudar temporizador"
+                        >
+                          <Play className="w-5 h-5 fill-current" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={onPauseTimer}
+                          className="p-2.5 rounded-lg text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 hover:bg-amber-100 transition-colors cursor-pointer"
+                          title="Pausar temporizador"
+                        >
+                          <Pause className="w-5 h-5 fill-current" />
+                        </button>
+                      )}
+
+                      <button
+                        onClick={onStopTimer}
+                        className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-[#FF3282] hover:bg-[#E62870] shadow-md shadow-[#FF3282]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
+                        title="Guardar registro en la planilla"
+                      >
+                        <Square className="w-4 h-4 fill-current" />
+                        <span>Guardar</span>
+                      </button>
+
+                      <button
+                        onClick={onDiscardTimer}
+                        className="p-2.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                        title="Descartar tiempo sin guardar"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Timer Display */}
-            <div className="flex items-center justify-between lg:justify-end gap-5 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800">
-              <div className="text-center lg:text-right">
-                <span className="block text-2xl sm:text-3xl font-bold font-mono text-slate-900 dark:text-slate-100 tracking-tight">
-                  {formatSecondsToDigital(timer.elapsedSeconds)}
+            {/* Quick Selection Chips (Areas with brand dots & recent projects) */}
+            {!timer.isRunning && (
+              <div className="pt-3 border-t border-[#E3E8F2]/80 dark:border-white/8 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-slate-400 text-[11px] font-medium mr-0.5">
+                  Área rápida:
                 </span>
-                <span className="text-[11px] text-slate-400 font-medium">
-                  {timer.isRunning
-                    ? timer.isPaused
-                      ? 'Pausado'
-                      : 'En curso'
-                    : 'Listo para iniciar'}
-                </span>
-              </div>
+                {COMMON_AREAS.map((areaName) => {
+                  const areaStyle = getAreaStyle(areaName);
+                  const isSelected = projectNameInput === areaName;
+                  return (
+                    <button
+                      key={areaName}
+                      type="button"
+                      onClick={() => setProjectNameInput(areaName)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer whitespace-nowrap ${
+                        isSelected
+                          ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/45 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
+                          : 'bg-[#F8FAFD] dark:bg-[#222128] border-[#E3E8F2] dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-[#003F9B]/35'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${areaStyle.dotClass}`} />
+                      <span>{areaName}</span>
+                    </button>
+                  );
+                })}
 
-              {/* Action Controls */}
-              <div className="flex items-center gap-2">
-                {!timer.isRunning ? (
-                  <button
-                    onClick={handleStart}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-[#003F9B] hover:bg-[#00327D] shadow-md shadow-[#003F9B]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
-                  >
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Iniciar</span>
-                  </button>
-                ) : (
+                {projects.filter((p) => !COMMON_AREAS.includes(p.name as any)).length > 0 && (
                   <>
-                    {timer.isPaused ? (
-                      <button
-                        onClick={onResumeTimer}
-                        className="p-2.5 rounded-lg text-white bg-[#003F9B] hover:bg-[#00327D] shadow-sm transition-colors cursor-pointer"
-                        title="Reanudar temporizador"
-                      >
-                        <Play className="w-5 h-5 fill-current" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={onPauseTimer}
-                        className="p-2.5 rounded-lg text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 transition-colors cursor-pointer"
-                        title="Pausar temporizador"
-                      >
-                        <Pause className="w-5 h-5 fill-current" />
-                      </button>
-                    )}
-
-                    <button
-                      onClick={onStopTimer}
-                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-[#FF3282] hover:bg-[#E62870] shadow-md shadow-[#FF3282]/25 transition-all cursor-pointer whitespace-nowrap active:scale-[0.98]"
-                      title="Guardar registro en la planilla"
-                    >
-                      <Square className="w-4 h-4 fill-current" />
-                      <span>Guardar</span>
-                    </button>
-
-                    <button
-                      onClick={onDiscardTimer}
-                      className="p-2.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                      title="Descartar tiempo sin guardar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <span className="text-slate-300 dark:text-white/15 mx-0.5">|</span>
+                    <span className="text-slate-400 text-[11px] font-medium">Proyectos:</span>
+                    {projects
+                      .filter((p) => !COMMON_AREAS.includes(p.name as any))
+                      .slice(0, 3)
+                      .map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setProjectNameInput(p.name)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 hover:border-[#5E47DF]/45 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer whitespace-nowrap"
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ backgroundColor: p.color }}
+                          />
+                          <span>{p.name}</span>
+                        </button>
+                      ))}
                   </>
                 )}
               </div>
-            </div>
+            )}
           </div>
-
-          {/* Quick Selection Chips (Areas and Common Projects) */}
-          {!timer.isRunning && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="text-slate-400 text-[11px] font-medium mr-1">
-                Elegir área directa:
-              </span>
-              {COMMON_AREAS.map((areaName) => (
-                <button
-                  key={areaName}
-                  type="button"
-                  onClick={() => setProjectNameInput(areaName)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
-                    projectNameInput === areaName
-                      ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/50 text-[#003F9B] dark:text-blue-300 font-semibold'
-                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
-                  }`}
-                >
-                  {areaName}
-                </button>
-              ))}
-
-              <span className="text-slate-300 dark:text-slate-700 mx-1">|</span>
-
-              <span className="text-slate-400 text-[11px] font-medium mr-1">
-                Recientes / Otros:
-              </span>
-              {projects
-                .filter((p) => !COMMON_AREAS.includes(p.name as any))
-                .slice(0, 3)
-                .map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setProjectNameInput(p.name)}
-                    className="px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-colors cursor-pointer"
-                  >
-                    {p.name}
-                  </button>
-                ))}
-            </div>
-          )}
         </div>
       ) : (
         /* Manual Entry Form */
         <form
           onSubmit={handleSaveManual}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-6 shadow-xs space-y-4"
+          className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-xs space-y-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Colaborador / Perfil */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                 Colaborador / Perfil
               </label>
               <select
@@ -503,7 +547,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     setManualProjectInput(found.area);
                   }
                 }}
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               >
                 {effectiveUsers.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -515,7 +559,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
             {/* Fecha de Trabajo */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                 Fecha de Trabajo
               </label>
               <input
@@ -523,22 +567,22 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualDate}
                 onChange={(e) => setManualDate(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                   Proyecto o Área
                 </label>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   {COMMON_AREAS.slice(0, 3).map((a) => (
                     <button
                       key={a}
                       type="button"
                       onClick={() => setManualProjectInput(a)}
-                      className="text-[10px] text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
+                      className="text-[10px] font-medium text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
                     >
                       {a}
                     </button>
@@ -552,7 +596,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualProjectInput}
                 onChange={(e) => setManualProjectInput(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
               <datalist id="projects-datalist-manual">
                 {allProjectNames.map((name) => (
@@ -562,14 +606,14 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                   {manualUseTimeRange ? 'Rango Horario' : 'Duración en Horas'}
                 </label>
                 <button
                   type="button"
                   onClick={() => setManualUseTimeRange(!manualUseTimeRange)}
-                  className="text-[11px] text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
+                  className="text-[11px] font-medium text-[#003F9B] dark:text-blue-400 hover:text-[#FF3282] hover:underline cursor-pointer"
                 >
                   {manualUseTimeRange ? 'Usar duración directa' : 'Usar inicio/fin'}
                 </button>
@@ -582,7 +626,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     value={manualStartTime}
                     onChange={(e) => setManualStartTime(e.target.value)}
                     required
-                    className="w-1/2 px-2.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                    className="w-1/2 px-2.5 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] font-mono tabular-nums"
                   />
                   <span className="text-slate-400 text-xs">a</span>
                   <input
@@ -590,7 +634,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     value={manualEndTime}
                     onChange={(e) => setManualEndTime(e.target.value)}
                     required
-                    className="w-1/2 px-2.5 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                    className="w-1/2 px-2.5 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] font-mono tabular-nums"
                   />
                 </div>
               ) : (
@@ -603,7 +647,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                   value={manualDurationHours}
                   onChange={(e) => setManualDurationHours(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono"
+                  className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
                 />
               )}
             </div>
@@ -617,7 +661,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                 value={manualDescription}
                 onChange={(e) => setManualDescription(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
@@ -632,42 +676,58 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         </form>
       )}
 
-      {/* Today's Productivity Highlights Bar (Separated for Current User Profile + Team Overview) */}
+      {/* Today's Productivity Highlights Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: My Hours Today */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
-            <span className="text-xs font-semibold">Horas de Hoy ({currentUser.name})</span>
-            <Clock className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate pr-2">
+              Horas de Hoy · {currentUser.name}
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-[#003F9B]/10 dark:bg-[#003F9B]/25 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
+            </div>
           </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-[#003F9B] dark:text-[#60A5FA]">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold font-mono tabular-nums text-[#003F9B] dark:text-[#60A5FA]">
               {formatMinutesToHours(myTodayMinutes)}
             </span>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-500 font-mono tabular-nums">
               ({myTodayHours}h)
             </span>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-            Total del equipo hoy: <strong className="font-mono text-[#5E47DF] dark:text-[#A78BFA]">{formatMinutesToHours(teamTotalTodayMinutes)}</strong> ({teamTotalTodayHours}h)
+            Total del equipo hoy:{' '}
+            <strong className="font-mono tabular-nums text-[#5E47DF] dark:text-[#A78BFA]">
+              {formatMinutesToHours(teamTotalTodayMinutes)}
+            </strong>{' '}
+            ({teamTotalTodayHours}h)
           </p>
         </div>
 
         {/* Card 2: My Daily Goal (2h) */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
-            <span className="text-xs font-semibold">Mi Jornada Diaria (Meta 2h)</span>
-            <Target className="w-4 h-4 text-[#FF3282]" />
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Mi Jornada Diaria (Meta 2h)
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-[#FF3282]/10 dark:bg-[#FF3282]/20 flex items-center justify-center shrink-0">
+              <Target className="w-4 h-4 text-[#FF3282]" />
+            </div>
           </div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className={`text-2xl font-bold font-mono ${isMyGoalMet ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#FF3282] dark:text-[#FF66A3]'}`}>
+          <div className="flex items-baseline justify-between">
+            <span
+              className={`text-2xl font-bold font-mono tabular-nums ${
+                isMyGoalMet ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#FF3282] dark:text-[#FF66A3]'
+              }`}
+            >
               {myDailyProgress}%
             </span>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-500 font-mono tabular-nums">
               {myTodayHours}h de 2h {isMyGoalMet && '✓'}
             </span>
           </div>
-          <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div className="w-full h-2 bg-[#EEF2F9] dark:bg-white/10 rounded-full mt-2.5 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 isMyGoalMet
@@ -685,194 +745,210 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
         </div>
 
         {/* Card 3: Team Goal Compliance */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
-            <span className="text-xs font-semibold">Cumplimiento del Equipo Hoy</span>
-            <Users className="w-4 h-4 text-[#5E47DF] dark:text-[#A78BFA]" />
-          </div>
-          <div className="flex items-baseline justify-between mt-1">
-            <span className="text-2xl font-bold font-mono text-[#5E47DF] dark:text-[#A78BFA]">
-              {usersCompletedGoalCount} / {effectiveUsers.length}
-            </span>
-            <span className="text-xs text-slate-500">
-              {usersCompletedGoalCount === 1 ? 'cumplió la meta' : 'cumplieron la meta'}
-            </span>
+        <div className="p-5 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                Cumplimiento del Equipo Hoy
+              </span>
+              <div className="w-8 h-8 rounded-lg bg-[#5E47DF]/10 dark:bg-[#5E47DF]/25 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 text-[#5E47DF] dark:text-[#A78BFA]" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold font-mono tabular-nums text-[#5E47DF] dark:text-[#A78BFA]">
+                {usersCompletedGoalCount} / {effectiveUsers.length}
+              </span>
+              <span className="text-xs text-slate-500">
+                {usersCompletedGoalCount === 1 ? 'cumplió la meta' : 'cumplieron la meta'}
+              </span>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => setShowTeamProfilesPanel(!showTeamProfilesPanel)}
-            className="w-full mt-2.5 py-1 px-2.5 text-xs font-medium rounded-lg bg-[#003F9B]/10 dark:bg-[#003F9B]/30 text-[#003F9B] dark:text-[#93C5FD] hover:bg-[#003F9B]/15 dark:hover:bg-[#003F9B]/40 flex items-center justify-between transition-colors cursor-pointer"
+            className="w-full mt-3 py-1.5 px-3 text-xs font-semibold rounded-lg bg-[#003F9B]/8 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#93C5FD] hover:bg-[#003F9B]/14 dark:hover:bg-[#003F9B]/35 flex items-center justify-between transition-colors cursor-pointer"
           >
-            <span>{showTeamProfilesPanel ? 'Ocultar panel por perfil' : 'Ver panel por perfil (Meta 2h)'}</span>
+            <span>{showTeamProfilesPanel ? 'Ocultar panel por perfil' : 'Ver panel por perfil'}</span>
             {showTeamProfilesPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* PANEL DE CUMPLIMIENTO POR PERFIL (DÍA META 2H / SEMANA META 10H)          */}
-      {/* ========================================================================= */}
+      {/* PANEL DE CUMPLIMIENTO POR PERFIL */}
       {showTeamProfilesPanel && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Panel de Cumplimiento por Perfil ({panelViewMode === 'day' ? 'Meta: 2h diarias' : 'Meta: 10h semanales'})
-                </h3>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {panelViewMode === 'day' ? (
-                  <>
-                    Fecha: <strong className="text-slate-700 dark:text-slate-300 capitalize">{formatDateSpanish(panelSelectedDate)}</strong>
-                    {panelSelectedDate === todayStr ? ' (Hoy)' : panelSelectedDate === yesterdayStr ? ' (Ayer)' : ''} · Meta individual: 2 horas por día
-                  </>
-                ) : (
-                  <>
-                    Semana del <strong className="text-slate-700 dark:text-slate-300">{formatDateSpanish(panelMondayStr)}</strong> al <strong className="text-slate-700 dark:text-slate-300">{formatDateSpanish(panelSundayStr)}</strong> · Meta individual: 10 horas semanales
-                  </>
-                )}
-              </p>
-            </div>
-
-            {/* Panel Controls: Mode Switch, Date Picker & Area Filter */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Day / Week Switcher */}
-              <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
-                <button
-                  type="button"
-                  onClick={() => setPanelViewMode('day')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
-                    panelViewMode === 'day'
-                      ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                  }`}
-                >
-                  Día (2h)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPanelViewMode('week')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
-                    panelViewMode === 'week'
-                      ? 'bg-white dark:bg-slate-900 text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                  }`}
-                >
-                  Semana (10h)
-                </button>
+        <div className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div className="space-y-3 border-b border-[#E3E8F2] dark:border-white/10 pb-4">
+            {/* Row 1: Title + Date/Mode Controls */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-[#003F9B] dark:text-[#60A5FA]" />
+                  <h3 className="text-sm font-bold text-[#141313] dark:text-[#FFFAF8]">
+                    Panel de Cumplimiento por Perfil ({panelViewMode === 'day' ? 'Meta: 2h diarias' : 'Meta: 10h semanales'})
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {panelViewMode === 'day' ? (
+                    <>
+                      Fecha: <strong className="text-[#141313] dark:text-slate-200 capitalize">{formatDateSpanish(panelSelectedDate)}</strong>
+                      {panelSelectedDate === todayStr ? ' (Hoy)' : panelSelectedDate === yesterdayStr ? ' (Ayer)' : ''} · Meta individual: 2 horas por día
+                    </>
+                  ) : (
+                    <>
+                      Semana del <strong className="text-[#141313] dark:text-slate-200">{formatDateSpanish(panelMondayStr)}</strong> al <strong className="text-[#141313] dark:text-slate-200">{formatDateSpanish(panelSundayStr)}</strong> · Meta individual: 10 horas semanales
+                    </>
+                  )}
+                </p>
               </div>
 
-              {/* Quick Date Buttons (when in day mode) */}
-              {panelViewMode === 'day' && (
-                <div className="flex items-center gap-1">
+              {/* Time Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center p-0.5 bg-[#F1F4FA] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-xs">
                   <button
                     type="button"
-                    onClick={() => setPanelSelectedDate(todayStr)}
-                    className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
-                      panelSelectedDate === todayStr
-                        ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
-                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    onClick={() => setPanelViewMode('day')}
+                    className={`px-3 py-1 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap ${
+                      panelViewMode === 'day'
+                        ? 'bg-white dark:bg-[#2D2C36] text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-white'
                     }`}
                   >
-                    Hoy
+                    Día (2h)
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPanelSelectedDate(yesterdayStr)}
-                    className={`px-2 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border ${
-                      panelSelectedDate === yesterdayStr
-                        ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
-                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    onClick={() => setPanelViewMode('week')}
+                    className={`px-3 py-1 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap ${
+                      panelViewMode === 'week'
+                        ? 'bg-white dark:bg-[#2D2C36] text-[#003F9B] dark:text-[#60A5FA] shadow-2xs font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-white'
                     }`}
                   >
-                    Ayer
+                    Semana (10h)
                   </button>
+                </div>
 
-                  <div className="relative flex items-center">
+                {panelViewMode === 'day' && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setPanelSelectedDate(todayStr)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border whitespace-nowrap ${
+                        panelSelectedDate === todayStr
+                          ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
+                          : 'bg-[#F8FAFD] dark:bg-[#222128] border-[#E3E8F2] dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-[#003F9B]/35'
+                      }`}
+                    >
+                      Hoy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPanelSelectedDate(yesterdayStr)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer border whitespace-nowrap ${
+                        panelSelectedDate === yesterdayStr
+                          ? 'bg-[#003F9B]/10 dark:bg-[#003F9B]/30 border-[#003F9B]/40 text-[#003F9B] dark:text-[#93C5FD] font-semibold'
+                          : 'bg-[#F8FAFD] dark:bg-[#222128] border-[#E3E8F2] dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-[#003F9B]/35'
+                      }`}
+                    >
+                      Ayer
+                    </button>
+
                     <input
                       type="date"
                       value={panelSelectedDate}
                       onChange={(e) => e.target.value && setPanelSelectedDate(e.target.value)}
                       title="Seleccionar otra fecha para revisar cumplimiento"
-                      className="px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 focus:outline-none focus:border-[#003F9B]"
+                      className="px-2.5 py-1 text-xs bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-md text-[#141313] dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
                     />
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            </div>
 
-              {/* Filter by area */}
-              <div className="flex items-center gap-1 pl-2 border-l border-slate-200 dark:border-slate-700">
-                {(['all', 'Marketing', 'RRHH', 'Sistemas', 'Administrador'] as const).map((area) => (
+            {/* Row 2: Clean Area Filter Bar */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <span className="text-[11px] font-medium text-slate-400 mr-1">Filtrar área:</span>
+              {(['all', 'Marketing', 'RRHH', 'Sistemas', 'Administrador'] as const).map((area) => {
+                const isActive = panelAreaFilter === area;
+                const areaStyle = area === 'all' ? null : getAreaStyle(area);
+                return (
                   <button
                     key={area}
                     onClick={() => setPanelAreaFilter(area)}
-                    className={`px-2 py-1 text-[11px] font-medium rounded-md transition-colors cursor-pointer ${
-                      panelAreaFilter === area
-                        ? 'bg-[#003F9B] text-white shadow-2xs'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                      isActive
+                        ? 'bg-[#003F9B] text-white shadow-2xs font-semibold'
+                        : 'bg-[#F5F7FB] dark:bg-[#222128] text-slate-600 dark:text-slate-300 hover:text-[#141313] dark:hover:text-white border border-transparent hover:border-[#E3E8F2] dark:hover:border-white/15'
                     }`}
                   >
-                    {area === 'all' ? 'Todos' : area}
+                    {areaStyle && !isActive && (
+                      <span className={`w-1.5 h-1.5 rounded-full ${areaStyle.dotClass}`} />
+                    )}
+                    <span>{area === 'all' ? 'Todos' : area}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
 
           {/* Grid of Profile Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
             {displayedProfiles.map((stat) => {
               const isCurrentUser = stat.user.id === currentUser.id;
+              const areaStyle = getAreaStyle(stat.user.area);
 
               return (
                 <div
                   key={stat.user.id}
-                  className={`p-3.5 rounded-xl border transition-all ${
+                  className={`p-4 rounded-xl border transition-all ${
                     isCurrentUser
-                      ? 'bg-[#003F9B]/5 dark:bg-[#003F9B]/20 border-[#003F9B]/40 dark:border-[#5E47DF]/50 ring-1 ring-[#003F9B]/20'
-                      : 'bg-slate-50/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-[#5E47DF]/40'
+                      ? 'bg-[#003F9B]/[0.04] dark:bg-[#003F9B]/20 border-[#003F9B]/40 dark:border-[#5E47DF]/55 ring-1 ring-[#003F9B]/15'
+                      : 'bg-[#F8FAFD] dark:bg-[#222128] border-[#E3E8F2] dark:border-white/10 hover:border-[#5E47DF]/40'
                   }`}
                 >
                   {/* Profile Header */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 truncate">
-                      <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-[#003F9B] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
-                        {stat.user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2.5 truncate">
+                      <div
+                        className={`w-8 h-8 rounded-full border text-[11px] font-bold flex items-center justify-center shrink-0 ${areaStyle.avatarClass}`}
+                      >
+                        {getInitials(stat.user.name)}
                       </div>
                       <div className="truncate">
-                        <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 block truncate">
+                        <span className="font-semibold text-xs text-[#141313] dark:text-[#FFFAF8] block truncate">
                           {stat.user.name}
                         </span>
-                        <span className="text-[10px] text-slate-500 block">
-                          {stat.user.area} {isCurrentUser && '· (Tu perfil)'}
+                        <span className={`text-[10px] font-semibold block ${areaStyle.labelClass}`}>
+                          {stat.user.area}
+                          {isCurrentUser && (
+                            <span className="text-slate-500 dark:text-slate-400 font-normal"> · Tu perfil</span>
+                          )}
                         </span>
                       </div>
                     </div>
 
-                    {/* Status Badge */}
+                    {/* Status indicator */}
                     {stat.isGoalMet ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/70 shrink-0 whitespace-nowrap">
                         <CheckCircle2 className="w-3 h-3" />
-                        {targetGoalHours}h cumplidas
+                        {targetGoalHours}h ✓
                       </span>
                     ) : stat.hours > 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-md bg-[#5E47DF]/10 dark:bg-[#5E47DF]/25 text-[#5E47DF] dark:text-[#C4B5FD] border border-[#5E47DF]/30 shrink-0">
-                        <Clock className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md bg-[#5E47DF]/10 dark:bg-[#5E47DF]/25 text-[#5E47DF] dark:text-[#C4B5FD] border border-[#5E47DF]/25 shrink-0 font-mono tabular-nums">
                         {stat.progress}%
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-normal rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
-                        0h de {targetGoalHours}h
+                      <span className="text-[10px] font-mono text-slate-400 shrink-0 pt-0.5">
+                        0h / {targetGoalHours}h
                       </span>
                     )}
                   </div>
 
                   {/* Hours & Progress */}
-                  <div className="space-y-1.5 my-2.5">
-                    <div className="flex items-baseline justify-between text-xs font-mono">
-                      <span className="font-bold text-slate-900 dark:text-slate-100">
+                  <div className="space-y-2 my-2.5">
+                    <div className="flex items-baseline justify-between text-xs font-mono tabular-nums">
+                      <span className="font-bold text-[#141313] dark:text-[#FFFAF8]">
                         {formatDurationHuman(stat.minutes)}
                       </span>
                       <span className="text-slate-400 text-[11px]">
@@ -880,14 +956,14 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-slate-200/80 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[#E3E8F2] dark:bg-white/10 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
                           stat.isGoalMet
                             ? 'bg-emerald-500'
                             : stat.hours > 0
                             ? 'bg-gradient-to-r from-[#003F9B] via-[#5E47DF] to-[#FF3282]'
-                            : 'bg-slate-300 dark:bg-slate-600'
+                            : 'bg-slate-300 dark:bg-white/15'
                         }`}
                         style={{ width: `${Math.min(100, stat.progress)}%` }}
                       />
@@ -895,26 +971,26 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
                     {/* Notice if live timer is currently running for this user */}
                     {stat.hasRunningTimer && (
-                      <div className="mt-1.5 px-2 py-1 rounded bg-[#FF3282]/10 dark:bg-[#FF3282]/20 border border-[#FF3282]/30 text-[10px] text-[#FF3282] dark:text-[#FF85B3] flex items-center gap-1.5">
+                      <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-[#FF3282]/10 dark:bg-[#FF3282]/20 border border-[#FF3282]/30 text-[10px] text-[#D91B66] dark:text-[#FF85B3] flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#FF3282] shrink-0" />
-                        <span>
+                        <span className="font-medium">
                           +{formatDurationHuman(Math.floor(stat.runningLiveSeconds / 60), {
                             seconds: stat.runningLiveSeconds,
                             showSeconds: true,
                           })}{' '}
-                          en temporizador (presiona Guardar para sumar)
+                          en curso (Guardar para sumar)
                         </span>
                       </div>
                     )}
                   </div>
 
                   {/* Footer / Quick Actions */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
-                    <span className="text-slate-500 text-[10px]">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[#E3E8F2]/80 dark:border-white/8 text-[11px]">
+                    <span className="text-slate-500 dark:text-slate-400 text-[10px]">
                       {stat.entriesCount} {stat.entriesCount === 1 ? 'registro' : 'registros'}
                     </span>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       {onSelectUser && !isCurrentUser && (
                         <button
                           type="button"
@@ -928,7 +1004,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                       <button
                         type="button"
                         onClick={() => setFilterUser(stat.user.id)}
-                        className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:underline cursor-pointer"
+                        className="text-slate-500 dark:text-slate-400 hover:text-[#141313] dark:hover:text-white hover:underline cursor-pointer"
                         title={`Filtrar lista de tareas para ver solo a ${stat.user.name}`}
                       >
                         Ver tareas
@@ -951,7 +1027,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             placeholder="Buscar por tarea, colaborador o proyecto..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-[#003F9B]"
+            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
           />
         </div>
 
@@ -962,7 +1038,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             <select
               value={filterUser}
               onChange={(e) => setFilterUser(e.target.value)}
-              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
             >
               <option value="all">Todos los colaboradores ({effectiveUsers.length})</option>
               <option value="my_entries">Solo mis tareas ({currentUser.name})</option>
@@ -982,7 +1058,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             <select
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
-              className="px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-slate-200 focus:outline-none focus:border-[#003F9B]"
             >
               <option value="all">Todos los proyectos / áreas</option>
               {allProjectNames.map((name) => (
@@ -996,16 +1072,33 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
       </div>
 
       {/* Entries List grouped by date */}
-      <div className="space-y-6">
+      <div className="space-y-5">
         {sortedDates.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
-            <Clock className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50" />
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              No hay registros de tiempo que coincidan
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              Inicia el temporizador escribiendo tu tarea o guarda una entrada manual.
-            </p>
+          <div className="text-center py-12 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-8 space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-[#003F9B]/10 dark:bg-[#003F9B]/25 text-[#003F9B] dark:text-[#60A5FA] flex items-center justify-center mx-auto">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-[#141313] dark:text-[#FFFAF8]">
+                No hay registros de tiempo que coincidan
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                Inicia el temporizador escribiendo tu tarea, registra una entrada manual o ajusta los filtros activos.
+              </p>
+            </div>
+            {(searchQuery || filterProject !== 'all' || filterUser !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilterProject('all');
+                  setFilterUser('all');
+                }}
+                className="px-3.5 py-1.5 text-xs font-semibold text-[#003F9B] dark:text-[#60A5FA] bg-[#003F9B]/8 dark:bg-[#003F9B]/25 hover:bg-[#003F9B]/15 rounded-lg transition-colors cursor-pointer"
+              >
+                Limpiar filtros
+              </button>
+            )}
           </div>
         ) : (
           sortedDates.map((dateStr) => {
@@ -1016,12 +1109,12 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             return (
               <div
                 key={dateStr}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden"
+                className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs overflow-hidden"
               >
                 {/* Date Header */}
-                <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                <div className="px-4 py-3 bg-[#F8FAFD] dark:bg-[#222128] border-b border-[#E3E8F2] dark:border-white/10 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 dark:text-slate-100 capitalize">
+                    <span className="font-bold text-[#141313] dark:text-[#FFFAF8] capitalize">
                       {isToday ? 'Hoy · ' : ''}
                       {formatDateSpanish(dateStr)}
                     </span>
@@ -1031,46 +1124,47 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 font-mono">
-                    <span className="text-slate-500">Total jornada:</span>
-                    <span className="font-bold text-slate-900 dark:text-slate-100">
+                  <div className="flex items-center gap-2 font-mono tabular-nums">
+                    <span className="text-slate-500 dark:text-slate-400">Total jornada:</span>
+                    <span className="font-bold text-[#003F9B] dark:text-[#60A5FA]">
                       {formatMinutesToHours(dayTotalMin)}
                     </span>
                   </div>
                 </div>
 
-                {/* Day entries table / list */}
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {/* Day entries list */}
+                <div className="divide-y divide-[#E3E8F2]/80 dark:divide-white/8">
                   {dayEntries.map((entry) => {
                     const matchedProj = projectMap.get(entry.projectName.toLowerCase());
-                    const projColor = matchedProj?.color || '#6366F1';
+                    const areaStyle = getAreaStyle(entry.userArea);
+                    const projColor = matchedProj?.color || areaStyle.hex;
 
                     return (
                       <div
                         key={entry.id}
-                        className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                        className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F5F7FB] dark:hover:bg-[#222128]/70 transition-colors"
                       >
                         {/* Project & Task Description */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 text-xs mb-1">
-                            <span className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-200 truncate">
+                          <div className="flex flex-wrap items-center gap-2 text-xs mb-1">
+                            <span className="flex items-center gap-1.5 font-semibold text-[#141313] dark:text-[#FFFAF8] truncate">
                               <span
                                 className="w-2.5 h-2.5 rounded-full shrink-0"
                                 style={{ backgroundColor: projColor }}
                               />
                               {entry.projectName}
                             </span>
-                            <span className="text-slate-400">·</span>
-                            <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">·</span>
+                            <span className={`text-[11px] font-semibold ${areaStyle.labelClass}`}>
                               {entry.userArea}
                             </span>
-                            <span className="text-slate-400">·</span>
-                            <span className="text-[11px] text-slate-500 font-medium">
+                            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">·</span>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                               {entry.userName}
                             </span>
                           </div>
 
-                          <p className="text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
+                          <p className="text-sm text-[#141313] dark:text-slate-200 font-medium leading-relaxed">
                             {entry.description}
                           </p>
                         </div>
@@ -1133,14 +1227,14 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
       {/* Quick Edit Modal */}
       {editingEntry && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+        <div className="fixed inset-0 z-50 bg-[#141313]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/12 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <h3 className="text-base font-bold text-[#141313] dark:text-[#FFFAF8]">
               Editar Registro de Tiempo
             </h3>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Colaborador / Perfil</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Colaborador / Perfil</label>
               <select
                 value={editingEntry.userId}
                 onChange={(e) => {
@@ -1154,7 +1248,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     });
                   }
                 }}
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
               >
                 {effectiveUsers.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -1165,19 +1259,19 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Descripción de la Tarea</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Descripción de la Tarea</label>
               <input
                 type="text"
                 value={editingEntry.description}
                 onChange={(e) =>
                   setEditingEntry({ ...editingEntry, description: e.target.value })
                 }
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Proyecto o Área</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Proyecto o Área</label>
               <input
                 type="text"
                 list="projects-datalist-edit"
@@ -1188,7 +1282,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                     projectName: e.target.value,
                   })
                 }
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
               />
               <datalist id="projects-datalist-edit">
                 {allProjectNames.map((name) => (
@@ -1199,18 +1293,18 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Fecha</label>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Fecha</label>
                 <input
                   type="date"
                   value={editingEntry.date}
                   onChange={(e) =>
                     setEditingEntry({ ...editingEntry, date: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                  className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                   Duración ({formatDurationHuman(editingEntry.durationMinutes)})
                 </label>
                 <div className="relative">
@@ -1225,7 +1319,7 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
                         durationMinutes: parseInt(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono pr-16"
+                    className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] font-mono pr-16"
                   />
                   <span className="absolute right-3 top-2 text-xs text-slate-400 pointer-events-none">
                     minutos
@@ -1234,11 +1328,11 @@ export const TimeTrackerView: React.FC<TimeTrackerViewProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E3E8F2] dark:border-white/10">
               <button
                 type="button"
                 onClick={() => setEditingEntry(null)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-[#F5F7FB] dark:hover:bg-white/5 rounded-lg cursor-pointer"
               >
                 Cancelar
               </button>
