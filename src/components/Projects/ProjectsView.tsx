@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { DepartmentArea, Project, TimeEntry, User } from '../../types';
 import { formatDurationHuman, minutesToDecimalHours } from '../../utils/timeUtils';
+import { getAreaStyle, getInitials } from '../../utils/areaStyles';
 import {
   FolderKanban,
   Users,
   Plus,
   Edit2,
   Trash2,
-  Clock,
   Check,
   AlertTriangle,
   RotateCcw,
@@ -128,7 +128,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold tracking-tight text-[#141313] dark:text-[#FFFAF8]">
             Proyectos & Equipo por Áreas
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -158,7 +158,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onResetSeedData();
               }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-lg hover:bg-[#F8FAFD] dark:hover:bg-[#222128] transition-colors cursor-pointer"
             title="Limpiar registros de prueba (demo)"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -168,13 +168,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-slate-200/60 dark:bg-slate-800 rounded-lg w-fit">
+      <div className="flex items-center gap-1 p-1 bg-[#E3E8F2]/60 dark:bg-[#222128] rounded-lg w-fit">
         <button
           onClick={() => setActiveTab('projects')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
             activeTab === 'projects'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              ? 'bg-white dark:bg-[#1B1A20] text-[#141313] dark:text-[#FFFAF8] shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-[#FFFAF8]'
           }`}
         >
           <FolderKanban className="w-3.5 h-3.5" />
@@ -182,10 +182,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('team')}
-          className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap ${
             activeTab === 'team'
-              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              ? 'bg-white dark:bg-[#1B1A20] text-[#141313] dark:text-[#FFFAF8] shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-[#141313] dark:hover:text-[#FFFAF8]'
           }`}
         >
           <Users className="w-3.5 h-3.5" />
@@ -196,102 +196,111 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       {/* Projects List View */}
       {activeTab === 'projects' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projectMetrics.map(({ project, totalMinutes, totalHours, budgetPercent, isOverBudget, entriesCount }) => (
-            <div
-              key={project.id}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-            >
-              {/* Card Header */}
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2 truncate">
+          {projectMetrics.map(({ project, totalMinutes, totalHours, budgetPercent, isOverBudget, entriesCount }) => {
+            const areaStyle = getAreaStyle(project.area);
+            return (
+              <div
+                key={project.id}
+                className="relative overflow-hidden bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#003F9B]/35 dark:hover:border-white/20 transition-colors"
+              >
+                {/* Clean Top Color Bar */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-1"
+                  style={{ backgroundColor: project.color }}
+                />
+
+                {/* Card Header */}
+                <div className="pt-0.5">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 truncate">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: project.color }}
+                      />
+                      <h3 className="font-bold text-sm text-[#141313] dark:text-[#FFFAF8] truncate">
+                        {project.name}
+                      </h3>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => handleOpenEditProject(project)}
+                        className="p-1 text-slate-400 hover:text-[#003F9B] dark:hover:text-[#60A5FA] rounded-md transition-colors cursor-pointer"
+                        title="Editar proyecto"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteProject(project.id)}
+                        className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors cursor-pointer"
+                        title="Eliminar proyecto"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
+                    <span className={`font-semibold ${areaStyle.labelClass}`}>
+                      Área: {project.area}
+                    </span>
+                    <span className="text-slate-300 dark:text-white/20">·</span>
+                    <span className="font-mono tabular-nums">{entriesCount} registros</span>
+                  </div>
+
+                  {project.description && (
+                    <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                      {project.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Progress Bar of Target Hours */}
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-slate-600 dark:text-slate-400 font-mono tabular-nums">
+                      Tiempo: {formatDurationHuman(totalMinutes)} ({totalHours}h) / {project.budgetHours}h
+                    </span>
                     <span
-                      className="w-3 h-3 rounded-full shrink-0"
-                      style={{ backgroundColor: project.color }}
+                      className={`font-mono tabular-nums font-bold ${
+                        isOverBudget ? 'text-rose-600' : 'text-[#141313] dark:text-[#FFFAF8]'
+                      }`}
+                    >
+                      {budgetPercent}%
+                    </span>
+                  </div>
+
+                  <div className="w-full h-2 bg-[#EEF2F9] dark:bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        isOverBudget
+                          ? 'bg-rose-500'
+                          : budgetPercent > 80
+                          ? 'bg-[#FF3282]'
+                          : 'bg-[#003F9B]'
+                      }`}
+                      style={{ width: `${Math.min(100, budgetPercent)}%` }}
                     />
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">
-                      {project.name}
-                    </h3>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      onClick={() => handleOpenEditProject(project)}
-                      className="p-1 text-slate-400 hover:text-[#003F9B] dark:hover:text-[#60A5FA] rounded-md transition-colors cursor-pointer"
-                      title="Editar proyecto"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => onDeleteProject(project.id)}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors cursor-pointer"
-                      title="Eliminar proyecto"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  {isOverBudget && (
+                    <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 font-mono tabular-nums">
+                      <AlertTriangle className="w-3 h-3" />
+                      Superó el objetivo por {(totalHours - project.budgetHours).toFixed(1)} horas
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
-                    Área: {project.area}
-                  </span>
-                  <span>·</span>
-                  <span>{entriesCount} registros</span>
-                </div>
-
-                {project.description && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
-                    {project.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Progress Bar of Target Hours */}
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="font-semibold text-slate-600 dark:text-slate-400">
-                    Tiempo: {formatDurationHuman(totalMinutes)} ({totalHours}h) / {project.budgetHours}h objetivo
-                  </span>
-                  <span
-                    className={`font-mono font-bold ${
-                      isOverBudget ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    {budgetPercent}%
+                {/* Card Footer */}
+                <div className="pt-3 border-t border-[#E3E8F2]/80 dark:border-white/10 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Estado:</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400 capitalize">
+                    {project.status === 'active' ? 'Activo' : 'Archivado'}
                   </span>
                 </div>
-
-                <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      isOverBudget
-                        ? 'bg-rose-500'
-                        : budgetPercent > 80
-                        ? 'bg-[#FF3282]'
-                        : 'bg-[#003F9B]'
-                    }`}
-                    style={{ width: `${Math.min(100, budgetPercent)}%` }}
-                  />
-                </div>
-
-                {isOverBudget && (
-                  <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    Superó el objetivo por {(totalHours - project.budgetHours).toFixed(1)} horas
-                  </p>
-                )}
               </div>
-
-              {/* Card Footer */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium">Estado:</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400 capitalize">
-                  {project.status === 'active' ? 'Activo' : 'Archivado'}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -301,30 +310,32 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           {AREAS.map((areaName) => {
             const members = allUsers.filter((u) => u.area === areaName);
             if (members.length === 0) return null;
+            const areaStyle = getAreaStyle(areaName);
 
             return (
               <div
                 key={areaName}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden"
+                className="relative overflow-hidden bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl shadow-xs"
               >
-                <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className={`h-1 w-full ${areaStyle.barClass}`} />
+                <div className="px-5 py-3 bg-[#F8FAFD] dark:bg-[#222128] border-b border-[#E3E8F2] dark:border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                    <h3 className={`font-bold text-sm ${areaStyle.labelClass}`}>
                       Área: {areaName}
                     </h3>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       ({members.length} {members.length === 1 ? 'colaborador' : 'colaboradores'})
                     </span>
                   </div>
                   {areaName === 'Administrador' && (
-                    <span className="text-xs text-purple-600 font-medium flex items-center gap-1">
+                    <span className="text-xs text-[#5E47DF] dark:text-[#A78BFA] font-medium flex items-center gap-1">
                       <Shield className="w-3.5 h-3.5" />
                       Aprobador de Planillas
                     </span>
                   )}
                 </div>
 
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="divide-y divide-[#E3E8F2]/70 dark:divide-white/5">
                   {members.map((u) => {
                     const userEntries = entries.filter((e) => e.userId === u.id);
                     const userMin = userEntries.reduce((acc, e) => acc + e.durationMinutes, 0);
@@ -333,39 +344,37 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     return (
                       <div
                         key={u.id}
-                        className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                        className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F8FAFD] dark:hover:bg-white/[0.03] transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0">
-                            {u.name
-                              .split(' ')
-                              .filter(Boolean)
-                              .map((n) => n[0])
-                              .join('')
-                              .slice(0, 2)
-                              .toUpperCase()}
+                          <div
+                            className={`w-10 h-10 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 ${areaStyle.avatarClass}`}
+                          >
+                            {getInitials(u.name)}
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                            <p className="font-bold text-sm text-[#141313] dark:text-[#FFFAF8]">
                               {u.name}
                             </p>
-                            <p className="text-[11px] text-slate-500 font-mono">{u.email}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                              {u.email}
+                            </p>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-6 self-start sm:self-auto text-xs">
                           <div>
-                            <span className="text-slate-500 block">Tiempo Acumulado:</span>
-                            <span className="font-bold font-mono text-slate-900 dark:text-slate-100 text-sm block">
+                            <span className="text-slate-500 dark:text-slate-400 block">Tiempo Acumulado:</span>
+                            <span className="font-bold font-mono tabular-nums text-[#141313] dark:text-[#FFFAF8] text-sm block">
                               {formatDurationHuman(userMin)}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono block">
+                            <span className="text-[10px] text-slate-400 font-mono tabular-nums block">
                               ({userHours}h)
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-500 block">Registros:</span>
-                            <span className="font-mono text-slate-700 dark:text-slate-300">
+                            <span className="text-slate-500 dark:text-slate-400 block">Registros:</span>
+                            <span className="font-mono tabular-nums text-slate-700 dark:text-slate-300">
                               {userEntries.length} tareas
                             </span>
                           </div>
@@ -382,34 +391,38 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
       {/* Project Modal */}
       {showProjectModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <form
             onSubmit={handleSaveProject}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4"
+            className="bg-white dark:bg-[#1B1A20] border border-[#E3E8F2] dark:border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4"
           >
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            <h3 className="text-base font-bold text-[#141313] dark:text-[#FFFAF8]">
               {editingProject ? 'Editar Proyecto' : 'Nuevo Proyecto'}
             </h3>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Nombre del Proyecto</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                Nombre del Proyecto
+              </label>
               <input
                 type="text"
                 placeholder="Ej. Automatización de Procesos Internos"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] focus:outline-none focus:ring-2 focus:ring-[#003F9B]/20 focus:border-[#003F9B]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Área Responsable</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                Área Responsable
+              </label>
               <select
                 value={projectArea}
                 onChange={(e) => setProjectArea(e.target.value as DepartmentArea)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
               >
                 {AREAS.map((a) => (
                   <option key={a} value={a}>
@@ -420,7 +433,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Horas Estimadas / Objetivo</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                Horas Estimadas / Objetivo
+              </label>
               <input
                 type="number"
                 step="5"
@@ -428,13 +443,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 value={projectBudget}
                 onChange={(e) => setProjectBudget(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono"
+                className="w-full px-3 py-2 text-sm bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8] font-mono tabular-nums"
               />
             </div>
 
             {/* Color picker */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">Color Identificador</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                Color Identificador
+              </label>
               <div className="flex items-center gap-2">
                 {PRESET_COLORS.map((c) => (
                   <button
@@ -451,21 +468,23 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Descripción / Objetivos</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                Descripción / Objetivos
+              </label>
               <textarea
                 rows={2}
                 value={projectDesc}
                 onChange={(e) => setProjectDesc(e.target.value)}
                 placeholder="Breve resumen del alcance o entregables..."
-                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 text-xs bg-[#F8FAFD] dark:bg-[#222128] border border-[#E3E8F2] dark:border-white/10 rounded-lg text-[#141313] dark:text-[#FFFAF8]"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E3E8F2] dark:border-white/10">
               <button
                 type="button"
                 onClick={() => setShowProjectModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-[#F8FAFD] dark:hover:bg-[#222128] rounded-lg cursor-pointer"
               >
                 Cancelar
               </button>
