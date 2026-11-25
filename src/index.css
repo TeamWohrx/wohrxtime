@@ -7,18 +7,27 @@
     --wohrx-magenta: #FF3282;
     --wohrx-purple: #5E47DF;
     --wohrx-black: #141313;
+    --wohrx-surface-dark: #1B1A20;
+    --wohrx-surface-dark-2: #222128;
     --wohrx-gray: #8F9193;
     --wohrx-white: #FFFAF8;
+    --wohrx-canvas-light: #F5F7FB;
   }
 
   body {
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: var(--wohrx-black);
-    background-color: var(--wohrx-white);
+    background-color: var(--wohrx-canvas-light);
+  }
+
+  .dark body {
+    color: var(--wohrx-white);
+    background-color: var(--wohrx-black);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Roboto', 'Montserrat', sans-serif;
+    text-wrap: balance;
   }
 
   .font-mono {
